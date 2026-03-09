@@ -1,0 +1,151 @@
+import { useState } from 'react';
+import { useTaskStore } from '@/lib/task-store';
+import { Task, TaskStatus, Priority } from '@/lib/types';
+
+import { Badge } from '@/components/ui/badge';
+import { format, isPast, isToday } from 'date-fns';
+import { he } from 'date-fns/locale';
+import { Calendar, AlertCircle, GripVertical } from 'lucide-react';
+import { RecurringTaskDialog } from './RecurringTaskDialog';
+import { motion } from 'framer-motion';
+
+const columns: { id: TaskStatus; label: string; color: string }[] = [
+  { id: 'todo', label: 'לביצוע', color: 'bg-secondary' },
+  { id: 'in_progress', label: 'בתהליך', color: 'bg-primary/10' },
+  { id: 'done', label: 'בוצע', color: 'bg-success/10' },
+];
+
+const priorityDot: Record<Priority, string> = {
+  high: 'bg-destructive',
+  medium: 'bg-warning',
+  low: 'bg-success',
+};
+
+export function KanbanView() {
+  const { getFilteredTasks, updateTaskStatus, workspaces } = useTaskStore();
+  const [recurringTask, setRecurringTask] = useState<Task | null>(null);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const tasks = getFilteredTasks();
+
+  const handleDragStart = (e: React.DragEvent, taskId: string) => {
+    setDraggedId(taskId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, status: TaskStatus) => {
+    e.preventDefault();
+    if (draggedId) {
+      const task = tasks.find((t) => t.id === draggedId);
+      if (task && task.status !== status) {
+        if (status === 'done' && !task.completed) {
+          setRecurringTask(task);
+        }
+        updateTaskStatus(draggedId, status);
+      }
+      setDraggedId(null);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const isOverdue = (task: Task) =>
+    !task.completed && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
+
+  return (
+    <>
+      <div className="flex gap-4 overflow-x-auto pb-4 h-full" dir="rtl">
+        {columns.map((col) => {
+          const colTasks = tasks.filter((t) => t.status === col.id);
+          return (
+            <div
+              key={col.id}
+              className="flex-1 min-w-[280px] flex flex-col"
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, col.id)}
+            >
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-3 ${col.color}`}>
+                <h3 className="text-sm font-semibold">{col.label}</h3>
+                <Badge variant="secondary" className="text-xs h-5 min-w-5 justify-center">
+                  {colTasks.length}
+                </Badge>
+              </div>
+
+              <div className="flex-1 space-y-2">
+                {colTasks.map((task) => {
+                  const ws = workspaces.find((w) => w.id === task.workspaceId);
+                  const assigneeName = task.assigneeId;
+                  const overdue = isOverdue(task);
+
+                  return (
+                    <motion.div
+                      key={task.id}
+                      layout
+                      draggable
+                      onDragStart={(e) => handleDragStart(e as any, task.id)}
+                      className={`rounded-xl border bg-card p-3 cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-shadow ${
+                        overdue ? 'border-destructive/30' : 'border-border'
+                      } ${draggedId === task.id ? 'opacity-50' : ''}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <div className={`h-2 w-2 rounded-full shrink-0 ${priorityDot[task.priority]}`} />
+                            <span className={`text-sm font-medium truncate ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                              {task.title}
+                            </span>
+                          </div>
+
+                          {task.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {task.description}
+                            </p>
+                          )}
+
+                          <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            <div className={`flex items-center gap-1 text-xs ${overdue ? 'text-destructive' : 'text-muted-foreground'}`}>
+                              {overdue && <AlertCircle className="h-3 w-3" />}
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(task.dueDate), 'dd/MM', { locale: he })}
+                            </div>
+
+                            {ws && (
+                              <span className="text-xs text-muted-foreground">
+                                {ws.icon}
+                              </span>
+                            )}
+
+                            {assigneeName && (
+                              <span className="text-xs text-muted-foreground mr-auto">
+                                {assigneeName.split(' ')[0]}
+                              </span>
+                            )}
+                          </div>
+
+                          {task.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {task.tags.map((tag) => (
+                                <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
+    </>
+  );
+}

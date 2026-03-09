@@ -1,0 +1,44 @@
+export type Priority = 'high' | 'medium' | 'low';
+export type TaskStatus = 'todo' | 'in_progress' | 'done';
+export type ViewMode = 'list' | 'kanban';
+
+export interface Workspace {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  members: string[]; // member names
+}
+
+export interface User {
+  id: string;
+  name: string;
+  avatar?: string;
+  email: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  workspaceId: string;
+  assigneeId: string;
+  priority: Priority;
+  status: TaskStatus;
+  tags: string[];
+  dueDate: string;
+  dueTime?: string;
+  reminderBefore?: string; // e.g. "1h", "30m", "1d"
+  createdAt: string;
+  completed: boolean;
+}
+
+export interface Notification {
+  id: string;
+  type: 'due' | 'assigned' | 'overdue';
+  taskId: string;
+  taskTitle: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
