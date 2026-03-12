@@ -36,7 +36,7 @@ export function useOverdueNotifications() {
     requestNotificationPermission();
 
     const checkOverdue = () => {
-      const { tasks, addNotification } = useTaskStore.getState();
+      const { tasks } = useTaskStore.getState();
 
       tasks.forEach((task) => {
         if (task.completed) return;
