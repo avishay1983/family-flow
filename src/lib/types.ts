@@ -28,6 +28,7 @@ export interface Task {
   tags: string[];
   dueDate: string;
   dueTime?: string;
+  dueDay?: number; // 0=Sunday, 1=Monday, etc. — recurring weekly day
   reminderBefore?: string; // e.g. "1h", "30m", "1d"
   createdAt: string;
   completed: boolean;

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Task, Priority } from '@/lib/types';
+import { nextDay, format } from 'date-fns';
+import { he } from 'date-fns/locale';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +35,30 @@ const reminderOptions = [
   { value: '1d', label: 'יום לפני' },
 ];
 
+const DAY_NAMES = [
+  { value: 0, label: 'יום ראשון' },
+  { value: 1, label: 'יום שני' },
+  { value: 2, label: 'יום שלישי' },
+  { value: 3, label: 'יום רביעי' },
+  { value: 4, label: 'יום חמישי' },
+  { value: 5, label: 'יום שישי' },
+  { value: 6, label: 'שבת' },
+];
+
+type DateMode = 'date' | 'day';
+
+/** Given a target day (0-6), return the next occurrence as ISO date string */
+function getNextDayDate(dayOfWeek: number): string {
+  const today = new Date();
+  const todayDay = today.getDay();
+  if (todayDay === dayOfWeek) {
+    // If today is that day, use today
+    return today.toISOString().split('T')[0];
+  }
+  const next = nextDay(today, dayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6);
+  return next.toISOString().split('T')[0];
+}
+
 export function CreateTaskModal({ open, onClose }: Props) {
   const { addTask, workspaces } = useTaskStore();
   const [title, setTitle] = useState('');
@@ -40,7 +66,9 @@ export function CreateTaskModal({ open, onClose }: Props) {
   const [workspaceId, setWorkspaceId] = useState(workspaces[0]?.id || '');
   const [assigneeId, setAssigneeId] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
+  const [dateMode, setDateMode] = useState<DateMode>('date');
   const [dueDate, setDueDate] = useState('');
+  const [dueDay, setDueDay] = useState<number | null>(null);
   const [dueTime, setDueTime] = useState('');
   const [reminderBefore, setReminderBefore] = useState('1h');
   const [tagInput, setTagInput] = useState('');
@@ -49,7 +77,6 @@ export function CreateTaskModal({ open, onClose }: Props) {
   const selectedWorkspace = workspaces.find((w) => w.id === workspaceId);
   const members = selectedWorkspace?.members || [];
 
-  // Reset assignee when workspace changes
   useEffect(() => {
     setAssigneeId(members[0] || '');
   }, [workspaceId]);
@@ -63,6 +90,15 @@ export function CreateTaskModal({ open, onClose }: Props) {
 
   const handleSubmit = () => {
     if (!title.trim()) return;
+
+    let finalDueDate = dueDate || new Date().toISOString().split('T')[0];
+    let finalDueDay: number | undefined;
+
+    if (dateMode === 'day' && dueDay !== null) {
+      finalDueDate = getNextDayDate(dueDay);
+      finalDueDay = dueDay;
+    }
+
     const task: Task = {
       id: Date.now().toString(),
       title,
@@ -72,8 +108,9 @@ export function CreateTaskModal({ open, onClose }: Props) {
       priority,
       status: 'todo',
       tags,
-      dueDate: dueDate || new Date().toISOString().split('T')[0],
+      dueDate: finalDueDate,
       dueTime,
+      dueDay: finalDueDay,
       reminderBefore,
       createdAt: new Date().toISOString(),
       completed: false,
@@ -87,7 +124,9 @@ export function CreateTaskModal({ open, onClose }: Props) {
     setTitle('');
     setDescription('');
     setPriority('medium');
+    setDateMode('date');
     setDueDate('');
+    setDueDay(null);
     setDueTime('');
     setTags([]);
     setTagInput('');
@@ -141,7 +180,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
                   </SelectContent>
                 </Select>
               ) : (
-                <p className="text-xs text-muted-foreground mt-2">אין חברים במרחב זה. הוסף חברים דרך הסיידבר.</p>
+                <p className="text-xs text-muted-foreground mt-2">אין חברים במרחב זה.</p>
               )}
             </div>
           </div>
@@ -165,15 +204,64 @@ export function CreateTaskModal({ open, onClose }: Props) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">תאריך יעד</label>
-              <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="h-9" />
+          {/* Date mode toggle */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">מועד יעד</label>
+            <div className="flex gap-2 mb-3">
+              <button
+                onClick={() => setDateMode('date')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  dateMode === 'date'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                }`}
+              >
+                📅 תאריך מדויק
+              </button>
+              <button
+                onClick={() => setDateMode('day')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  dateMode === 'day'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                }`}
+              >
+                🔄 יום בשבוע
+              </button>
             </div>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">שעת יעד</label>
-              <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" />
-            </div>
+
+            {dateMode === 'date' ? (
+              <div className="grid grid-cols-2 gap-3">
+                <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="h-9" />
+                <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {DAY_NAMES.map((day) => (
+                    <button
+                      key={day.value}
+                      onClick={() => setDueDay(day.value)}
+                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                        dueDay === day.value
+                          ? 'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background'
+                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                      }`}
+                    >
+                      {day.label}
+                    </button>
+                  ))}
+                </div>
+                {dueDay !== null && (
+                  <p className="text-xs text-muted-foreground">
+                    📌 המשימה תיקבע ל-{DAY_NAMES[dueDay].label} הקרוב ({format(new Date(getNextDayDate(dueDay)), 'dd/MM/yyyy', { locale: he })})
+                    <br />
+                    ⚠️ אם לא תבוצע — תקבל התראה יומית עד ביצוע
+                  </p>
+                )}
+                <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" placeholder="שעת יעד (אופציונלי)" />
+              </div>
+            )}
           </div>
 
           <div>
