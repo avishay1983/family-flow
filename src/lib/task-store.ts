@@ -17,6 +17,7 @@ interface TaskStore {
   addTask: (task: Task) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
+  deleteAllTasks: () => void;
   toggleComplete: (id: string) => void;
   updateTaskStatus: (id: string, status: TaskStatus) => void;
   
