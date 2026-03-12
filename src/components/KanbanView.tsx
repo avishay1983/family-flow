@@ -161,9 +161,16 @@ export function KanbanView() {
                         draggedId === task.id ? 'opacity-50' : ''
                       }`}
                     >
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-start gap-2 group">
                         {!isMobile && (
                           <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
+                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setDeleteId(task.id); }}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all shrink-0 mt-0.5 md:block hidden"
+                          title="מחק משימה"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
