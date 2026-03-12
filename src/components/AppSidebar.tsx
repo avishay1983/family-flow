@@ -133,7 +133,7 @@ export function AppSidebar() {
                           : 'hover:bg-sidebar-accent/50'
                       }`}
                     >
-                      <span className="text-base shrink-0">{ws.icon}</span>
+                      <IconDisplay icon={ws.icon} className="text-base shrink-0" />
                       {!collapsed && (
                         <div className="flex flex-1 items-center justify-between">
                           <span>{ws.name}</span>
