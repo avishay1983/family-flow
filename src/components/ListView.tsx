@@ -6,7 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, isPast, isToday } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, Clock, User, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User, AlertCircle, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { RecurringTaskDialog } from './RecurringTaskDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,8 +28,9 @@ const priorityStyles: Record<Priority, string> = {
 const priorityLabels: Record<Priority, string> = { high: 'גבוה', medium: 'בינוני', low: 'נמוך' };
 
 export function ListView() {
-  const { getFilteredTasks, toggleComplete, workspaces } = useTaskStore();
+  const { getFilteredTasks, toggleComplete, deleteTask, workspaces } = useTaskStore();
   const [recurringTask, setRecurringTask] = useState<Task | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const tasks = getFilteredTasks().sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
   const handleToggle = (task: Task) => {
@@ -110,6 +121,13 @@ export function ListView() {
                     </>
                   )}
                 </div>
+                <button
+                  onClick={() => setDeleteId(task.id)}
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all shrink-0"
+                  title="מחק משימה"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               </motion.div>
             );
           })}
@@ -121,6 +139,26 @@ export function ListView() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>מחיקת משימה</AlertDialogTitle>
+            <AlertDialogDescription>
+              האם אתה בטוח שברצונך למחוק את המשימה? פעולה זו לא ניתנת לביטול.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogAction
+              onClick={() => { if (deleteId) { deleteTask(deleteId); setDeleteId(null); } }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              מחק
+            </AlertDialogAction>
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
     </>
