@@ -121,6 +121,13 @@ export function ListView() {
                     </>
                   )}
                 </div>
+                <button
+                  onClick={() => setDeleteId(task.id)}
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all shrink-0"
+                  title="מחק משימה"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               </motion.div>
             );
           })}
@@ -132,6 +139,26 @@ export function ListView() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>מחיקת משימה</AlertDialogTitle>
+            <AlertDialogDescription>
+              האם אתה בטוח שברצונך למחוק את המשימה? פעולה זו לא ניתנת לביטול.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogAction
+              onClick={() => { if (deleteId) { deleteTask(deleteId); setDeleteId(null); } }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              מחק
+            </AlertDialogAction>
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
     </>
