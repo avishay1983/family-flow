@@ -5,9 +5,19 @@ import { Task, TaskStatus, Priority } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { format, isPast, isToday } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { RecurringTaskDialog } from './RecurringTaskDialog';
 import { motion } from 'framer-motion';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const columns: { id: TaskStatus; label: string; color: string }[] = [
@@ -23,9 +33,10 @@ const priorityDot: Record<Priority, string> = {
 };
 
 export function KanbanView() {
-  const { getFilteredTasks, updateTaskStatus, workspaces } = useTaskStore();
+  const { getFilteredTasks, updateTaskStatus, deleteTask, workspaces } = useTaskStore();
   const [recurringTask, setRecurringTask] = useState<Task | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [activeCol, setActiveCol] = useState(0);
   const isMobile = useIsMobile();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -150,10 +161,17 @@ export function KanbanView() {
                         draggedId === task.id ? 'opacity-50' : ''
                       }`}
                     >
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-start gap-2 group">
                         {!isMobile && (
                           <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
                         )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setDeleteId(task.id); }}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all shrink-0 mt-0.5 md:block hidden"
+                          title="מחק משימה"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
                             <div className={`h-2 w-2 rounded-full shrink-0 ${priorityDot[task.priority]}`} />
@@ -231,6 +249,26 @@ export function KanbanView() {
           );
         })}
       </div>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>מחיקת משימה</AlertDialogTitle>
+            <AlertDialogDescription>
+              האם אתה בטוח שברצונך למחוק את המשימה? פעולה זו לא ניתנת לביטול.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse gap-2">
+            <AlertDialogAction
+              onClick={() => { if (deleteId) { deleteTask(deleteId); setDeleteId(null); } }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              מחק
+            </AlertDialogAction>
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
     </>
