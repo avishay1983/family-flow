@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Workspace } from '@/lib/types';
 import { WorkspaceMembersDialog } from './WorkspaceMembersDialog';
+import shabbatIcon from '@/assets/shabbat-icon.png';
 import {
   Sidebar,
   SidebarContent,
@@ -33,7 +34,18 @@ import {
 } from '@/components/ui/alert-dialog';
 import { LayoutDashboard, Plus, Trash2, Users } from 'lucide-react';
 
-const EMOJI_OPTIONS = ['📁', '🎯', '💡', '🔥', '⭐', '🏠', '💼', '👤', '📚', '🎨', '🛠️', '🌍', '🕯️'];
+const EMOJI_OPTIONS = ['📁', '🎯', '💡', '🔥', '⭐', '🏠', '💼', '👤', '📚', '🎨', '🛠️', '🌍', 'shabbat'];
+
+const SPECIAL_ICONS: Record<string, string> = {
+  shabbat: shabbatIcon,
+};
+
+function IconDisplay({ icon, className = '' }: { icon: string; className?: string }) {
+  if (SPECIAL_ICONS[icon]) {
+    return <img src={SPECIAL_ICONS[icon]} alt={icon} className={`inline-block ${className}`} style={{ width: '1.2em', height: '1.2em' }} />;
+  }
+  return <span className={className}>{icon}</span>;
+}
 
 export function AppSidebar() {
   const { activeWorkspace, setActiveWorkspace, tasks, workspaces, addWorkspace, deleteWorkspace } = useTaskStore();
@@ -121,7 +133,7 @@ export function AppSidebar() {
                           : 'hover:bg-sidebar-accent/50'
                       }`}
                     >
-                      <span className="text-base shrink-0">{ws.icon}</span>
+                      <IconDisplay icon={ws.icon} className="text-base shrink-0" />
                       {!collapsed && (
                         <div className="flex flex-1 items-center justify-between">
                           <span>{ws.name}</span>
@@ -180,7 +192,7 @@ export function AppSidebar() {
                         : 'bg-secondary hover:bg-secondary/80'
                     }`}
                   >
-                    {emoji}
+                    <IconDisplay icon={emoji} />
                   </button>
                 ))}
               </div>
