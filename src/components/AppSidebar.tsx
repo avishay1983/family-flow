@@ -192,7 +192,7 @@ export function AppSidebar() {
                         : 'bg-secondary hover:bg-secondary/80'
                     }`}
                   >
-                    {emoji}
+                    <IconDisplay icon={emoji} />
                   </button>
                 ))}
               </div>
