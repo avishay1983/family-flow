@@ -66,7 +66,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
   const [workspaceId, setWorkspaceId] = useState(workspaces[0]?.id || '');
   const [assigneeId, setAssigneeId] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
-  const [dateMode, setDateMode] = useState<DateMode>('date');
+  const [dateMode, setDateMode] = useState<DateMode>('day');
   const [dueDate, setDueDate] = useState('');
   const [dueDay, setDueDay] = useState<number | null>(null);
   const [dueTime, setDueTime] = useState('');
