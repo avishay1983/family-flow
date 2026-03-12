@@ -1,11 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.7a3e22845306461891a2b291de055a94',
-  appName: 'Task Manager',
+  appId: 'app.lovable.73bbc3a9683344108337cc3a1dff7587',
+  appName: 'family-flow-2006',
   webDir: 'dist',
   server: {
-    url: 'https://7a3e2284-5306-4618-91a2-b291de055a94.lovableproject.com?forceHideBadge=true',
+    url: 'https://73bbc3a9-6833-4410-8337-cc3a1dff7587.lovableproject.com?forceHideBadge=true',
     cleartext: true
   }
 };
