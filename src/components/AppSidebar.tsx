@@ -59,8 +59,24 @@ export function AppSidebar() {
   const [membersWsId, setMembersWsId] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
   const [newIcon, setNewIcon] = useState('📁');
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [allUsers, setAllUsers] = useState<string[]>([]);
 
-  const getTaskCount = (wsId: string) =>
+  // Fetch all known users from workspaces members + device_registrations
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const membersFromWorkspaces = new Set<string>();
+      // Get all workspace members from store
+      workspaces.forEach(w => w.members.forEach(m => membersFromWorkspaces.add(m)));
+      
+      // Get users from device_registrations
+      const { data } = await supabase.from('device_registrations').select('user_name');
+      if (data) data.forEach(row => membersFromWorkspaces.add(row.user_name));
+      
+      setAllUsers(Array.from(membersFromWorkspaces).sort());
+    };
+    if (showAdd) fetchUsers();
+  }, [showAdd, workspaces]);
     tasks.filter((t) => t.workspaceId === wsId && !t.completed).length;
 
   const handleAdd = () => {
