@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      device_registrations: {
+        Row: {
+          device_id: string
+          device_label: string | null
+          id: string
+          registered_at: string
+          user_name: string
+        }
+        Insert: {
+          device_id: string
+          device_label?: string | null
+          id?: string
+          registered_at?: string
+          user_name: string
+        }
+        Update: {
+          device_id?: string
+          device_label?: string | null
+          id?: string
+          registered_at?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
