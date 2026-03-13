@@ -72,7 +72,7 @@ export const initialTasks: Task[] = [
     title: 'לתקן את הברז במטבח',
     description: 'הברז מטפטף, צריך להחליף אטם',
     workspaceId: 'home',
-    assigneeId: 'מיכל לוי',
+    assigneeIds: ['מיכל לוי'],
     priority: 'low',
     status: 'todo',
     tags: ['תחזוקה'],
