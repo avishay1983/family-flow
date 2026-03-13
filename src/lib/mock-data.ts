@@ -42,7 +42,7 @@ export const initialTasks: Task[] = [
     title: 'להכין מצגת לפגישת צוות',
     description: 'מצגת סיכום רבעוני עם גרפים ונתונים',
     workspaceId: 'work',
-    assigneeId: 'דני כהן',
+    assigneeIds: ['דני כהן'],
     priority: 'high',
     status: 'in_progress',
     tags: ['פגישה', 'מצגת'],
