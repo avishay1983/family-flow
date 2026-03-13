@@ -53,6 +53,7 @@ function groupTasksByDate(tasks: Task[]): { label: string; dateKey: string; task
 export function ListView() {
   const { getFilteredTasks, toggleComplete, deleteTask, workspaces } = useTaskStore();
   const [recurringTask, setRecurringTask] = useState<Task | null>(null);
+  const [editTask, setEditTask] = useState<Task | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const tasks = getFilteredTasks().sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
   const grouped = groupTasksByDate(tasks);
