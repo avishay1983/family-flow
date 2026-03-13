@@ -158,10 +158,10 @@ export function AppHeader() {
               variant="ghost"
               size="sm"
               onClick={logout}
-              className="gap-1 text-muted-foreground hover:text-foreground text-xs"
+              className="gap-1.5 text-muted-foreground hover:text-foreground text-xs"
               title="התנתק"
             >
-              <span className="hidden md:inline">{currentUser}</span>
+              <span className="max-w-[60px] truncate">{currentUser}</span>
               <LogOut className="h-4 w-4" />
             </Button>
           )}
