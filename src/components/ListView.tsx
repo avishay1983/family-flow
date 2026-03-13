@@ -4,7 +4,7 @@ import { Task, Priority } from '@/lib/types';
 
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { format, isPast, isToday, isYesterday, isTomorrow, parseISO } from 'date-fns';
+import { format, isPast, isToday, isYesterday, isTomorrow, parseISO, startOfWeek, endOfWeek, isWithinInterval, isBefore } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Calendar, Clock, User, AlertCircle, Trash2 } from 'lucide-react';
 import {
