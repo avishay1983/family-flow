@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Task, Priority } from '@/lib/types';
 import { nextDay, format } from 'date-fns';
