@@ -6,6 +6,7 @@ import shabbatIcon from '@/assets/shabbat-icon.png';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
