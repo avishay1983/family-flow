@@ -274,6 +274,7 @@ export function KanbanView() {
       </AlertDialog>
 
       <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
+      <EditTaskModal task={editTask} onClose={() => setEditTask(null)} />
     </>
   );
 }
