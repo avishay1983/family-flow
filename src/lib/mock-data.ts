@@ -27,7 +27,7 @@ export const initialTasks: Task[] = [
     title: 'לקנות מצרכים לשבת',
     description: 'חלב, לחם, ירקות, בשר, ופירות',
     workspaceId: 'home',
-    assigneeId: 'דני כהן',
+    assigneeIds: ['דני כהן'],
     priority: 'high',
     status: 'todo',
     tags: ['קניות', 'דחוף'],
