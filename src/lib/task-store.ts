@@ -132,7 +132,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       title: task.title,
       description: task.description,
       workspace_id: task.workspaceId,
-      assignee_id: task.assigneeId,
+      assignee_ids: task.assigneeIds,
       priority: task.priority,
       status: task.status,
       tags: task.tags,
