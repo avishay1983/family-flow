@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Workspace } from '@/lib/types';
 import { WorkspaceMembersDialog } from './WorkspaceMembersDialog';
+import { supabase } from '@/integrations/supabase/client';
 import shabbatIcon from '@/assets/shabbat-icon.png';
 import {
   Sidebar,
