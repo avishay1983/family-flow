@@ -60,7 +60,6 @@ export function AppSidebar() {
 
   const getTaskCount = (wsId: string) =>
     tasks.filter((t) => t.workspaceId === wsId && !t.completed).length;
-  const totalOpen = tasks.filter((t) => !t.completed).length;
 
   const handleAdd = () => {
     if (!newName.trim()) return;
