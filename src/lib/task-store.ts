@@ -10,8 +10,11 @@ interface TaskStore {
   viewMode: ViewMode;
   searchQuery: string;
   isLoading: boolean;
+  currentUser: string | null;
 
   loadFromDB: () => Promise<void>;
+  setCurrentUser: (name: string) => void;
+  logout: () => void;
 
   setActiveWorkspace: (id: string | null) => void;
   setViewMode: (mode: ViewMode) => void;
@@ -89,6 +92,15 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
   viewMode: 'list',
   searchQuery: '',
   isLoading: true,
+  currentUser: localStorage.getItem('currentUser'),
+  setCurrentUser: (name) => {
+    localStorage.setItem('currentUser', name);
+    set({ currentUser: name });
+  },
+  logout: () => {
+    localStorage.removeItem('currentUser');
+    set({ currentUser: null, activeWorkspace: null });
+  },
 
   loadFromDB: async () => {
     set({ isLoading: true });

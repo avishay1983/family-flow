@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useOverdueNotifications } from "@/hooks/useOverdueNotifications";
 import { useTaskStore } from "@/lib/task-store";
+import { LoginScreen } from "@/components/LoginScreen";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -13,12 +14,21 @@ const queryClient = new QueryClient();
 
 function AppContent() {
   const loadFromDB = useTaskStore((s) => s.loadFromDB);
+  const currentUser = useTaskStore((s) => s.currentUser);
+  const isLoading = useTaskStore((s) => s.isLoading);
+  const workspaces = useTaskStore((s) => s.workspaces);
 
   useEffect(() => {
     loadFromDB();
   }, [loadFromDB]);
 
   useOverdueNotifications();
+
+  // Show login after data is loaded so we have member names
+  if (!isLoading && workspaces.length > 0 && !currentUser) {
+    return <LoginScreen />;
+  }
+
   return (
     <BrowserRouter>
       <Routes>

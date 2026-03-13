@@ -4,7 +4,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Plus, Search, List, Columns3, Trash2, ChevronDown } from 'lucide-react';
+import { Bell, Plus, Search, List, Columns3, Trash2, ChevronDown, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +35,7 @@ function WorkspaceIcon({ icon }: { icon: string }) {
 }
 
 export function AppHeader() {
-  const { viewMode, setViewMode, searchQuery, setSearchQuery, getUnreadNotificationCount, deleteAllTasks, activeWorkspace, workspaces, setActiveWorkspace } =
+  const { viewMode, setViewMode, searchQuery, setSearchQuery, getUnreadNotificationCount, deleteAllTasks, activeWorkspace, workspaces, setActiveWorkspace, currentUser, logout } =
     useTaskStore();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCreateTask, setShowCreateTask] = useState(false);
@@ -152,6 +152,19 @@ export function AppHeader() {
               <NotificationsDropdown onClose={() => setShowNotifications(false)} />
             )}
           </div>
+
+          {currentUser && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={logout}
+              className="gap-1 text-muted-foreground hover:text-foreground text-xs"
+              title="התנתק"
+            >
+              <span className="hidden md:inline">{currentUser}</span>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </header>
 
