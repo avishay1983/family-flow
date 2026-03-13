@@ -99,7 +99,8 @@ export function ListView() {
                       >
                         <SwipeableTask onDelete={() => setDeleteId(task.id)}>
                           <div
-                            className={`flex items-center gap-3 rounded-xl px-4 py-3 md:py-3 py-4 transition-colors hover:bg-accent/50 group ${
+                            onClick={() => setEditTask(task)}
+                            className={`flex items-center gap-3 rounded-xl px-4 py-3 md:py-3 py-4 transition-colors hover:bg-accent/50 group cursor-pointer ${
                               overdue ? 'bg-destructive/5 border border-destructive/10' : 'border border-transparent'
                             } ${task.completed ? 'opacity-60' : ''}`}
                           >
