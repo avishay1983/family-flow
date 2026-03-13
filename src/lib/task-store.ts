@@ -47,7 +47,7 @@ function dbToTask(row: any): Task {
     title: row.title,
     description: row.description,
     workspaceId: row.workspace_id,
-    assigneeId: row.assignee_id,
+    assigneeIds: row.assignee_ids || [],
     priority: row.priority,
     status: row.status,
     tags: row.tags || [],
