@@ -220,6 +220,68 @@ async function sendWebPush(
   });
 }
 
+function parseReminderToMs(reminder: string | null | undefined): number | null {
+  if (!reminder) return null;
+  const match = reminder.match(/^(\d+)([mhd])$/);
+  if (!match) return null;
+
+  const value = Number(match[1]);
+  const unit = match[2];
+
+  if (unit === 'm') return value * 60 * 1000;
+  if (unit === 'h') return value * 60 * 60 * 1000;
+  if (unit === 'd') return value * 24 * 60 * 60 * 1000;
+  return null;
+}
+
+function formatReminder(reminder: string | null | undefined): string {
+  const labels: Record<string, string> = {
+    '15m': '15 דקות',
+    '30m': '30 דקות',
+    '1h': 'שעה',
+    '2h': 'שעתיים',
+    '1d': 'יום',
+  };
+
+  if (!reminder) return 'זמן קצר';
+  return labels[reminder] ?? reminder;
+}
+
+async function sendPushToSubscriptions(
+  supabase: any,
+  subscriptions: any[],
+  payload: { title: string; body: string; icon: string; tag: string },
+  vapidKeys: { publicKey: string; privateKey: string }
+): Promise<number> {
+  let sent = 0;
+  const message = JSON.stringify(payload);
+
+  for (const sub of subscriptions) {
+    try {
+      const resp = await sendWebPush(
+        sub.endpoint,
+        sub.p256dh,
+        sub.auth,
+        message,
+        vapidKeys.publicKey,
+        vapidKeys.privateKey
+      );
+
+      if (resp.ok) {
+        sent++;
+      } else if (resp.status === 404 || resp.status === 410) {
+        await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+      } else {
+        console.error('Push send failed:', resp.status, await resp.text());
+      }
+    } catch (e) {
+      console.error('Push send error:', e);
+    }
+  }
+
+  return sent;
+}
+
 // ---- Main handler ----
 
 serve(async (req) => {
