@@ -79,6 +79,15 @@ export function AppSidebar() {
   }, [showAdd, workspaces]);
     tasks.filter((t) => t.workspaceId === wsId && !t.completed).length;
 
+  const getTaskCount = (wsId: string) =>
+    tasks.filter((t) => t.workspaceId === wsId && !t.completed).length;
+
+  const toggleMember = (name: string) => {
+    setSelectedMembers(prev => 
+      prev.includes(name) ? prev.filter(m => m !== name) : [...prev, name]
+    );
+  };
+
   const handleAdd = () => {
     if (!newName.trim()) return;
     const ws: Workspace = {
@@ -86,11 +95,12 @@ export function AppSidebar() {
       name: newName.trim(),
       icon: newIcon,
       color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`,
-      members: [],
+      members: selectedMembers,
     };
     addWorkspace(ws);
     setNewName('');
     setNewIcon('📁');
+    setSelectedMembers([]);
     setShowAdd(false);
   };
 
