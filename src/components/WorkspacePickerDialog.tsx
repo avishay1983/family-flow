@@ -26,8 +26,7 @@ export function WorkspacePickerDialog() {
     <Dialog open={open}>
       <DialogContent
         dir="rtl"
-        className="sm:max-w-sm"
-        hideCloseButton
+        className="sm:max-w-sm [&>button]:hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
