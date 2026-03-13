@@ -170,16 +170,23 @@ export function CreateTaskModal({ open, onClose }: Props) {
               </Select>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">אחראי</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">אחראים</label>
               {members.length > 0 ? (
-                <Select value={assigneeId} onValueChange={setAssigneeId}>
-                  <SelectTrigger className="h-9"><SelectValue placeholder="בחר אחראי" /></SelectTrigger>
-                  <SelectContent>
-                    {members.map((name) => (
-                      <SelectItem key={name} value={name}>{name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-wrap gap-2">
+                  {members.map((name) => (
+                    <label key={name} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={assigneeIds.includes(name)}
+                        onCheckedChange={(checked) => {
+                          setAssigneeIds(prev =>
+                            checked ? [...prev, name] : prev.filter(n => n !== name)
+                          );
+                        }}
+                      />
+                      {name}
+                    </label>
+                  ))}
+                </div>
               ) : (
                 <p className="text-xs text-muted-foreground mt-2">אין חברים במרחב זה.</p>
               )}

@@ -199,9 +199,9 @@ export function KanbanView() {
                               </span>
                             )}
 
-                            {assigneeName && (
+                            {assigneeNames.length > 0 && (
                               <span className="text-xs text-muted-foreground mr-auto">
-                                {assigneeName.split(' ')[0]}
+                                {assigneeNames.map(n => n.split(' ')[0]).join(', ')}
                               </span>
                             )}
                           </div>

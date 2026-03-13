@@ -86,7 +86,7 @@ export const initialTasks: Task[] = [
     title: 'לשלוח דוח חודשי למנהל',
     description: 'דוח ביצועים חודשי כולל KPIs',
     workspaceId: 'work',
-    assigneeId: 'דני כהן',
+    assigneeIds: ['דני כהן'],
     priority: 'medium',
     status: 'done',
     tags: ['דוחות'],
