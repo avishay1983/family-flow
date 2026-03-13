@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useTaskStore } from '@/lib/task-store';
+import { getDeviceId } from '@/lib/device-id';
+import { supabase } from '@/integrations/supabase/client';
 import { isPast, isToday } from 'date-fns';
 
 const DAY_NAMES = ['יום ראשון', 'יום שני', 'יום שלישי', 'יום רביעי', 'יום חמישי', 'יום שישי', 'שבת'];
@@ -18,39 +20,50 @@ function sendNotification(title: string, body: string) {
       body,
       icon: '/pwa-192x192.png',
       badge: '/pwa-192x192.png',
-      tag: `overdue-${title}`, // prevents duplicate notifications
+      tag: `overdue-${title}`,
     });
   }
 }
 
 /**
- * Hook that checks every minute for overdue tasks (especially day-based ones)
- * and sends browser push notifications.
+ * Hook that checks every minute for overdue tasks assigned to the
+ * device owner and sends browser push notifications only for them.
  */
 export function useOverdueNotifications() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const notifiedRef = useRef<Set<string>>(new Set());
+  const deviceOwnerRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // Request permission on first load
     requestNotificationPermission();
+
+    // Resolve device owner once
+    const deviceId = getDeviceId();
+    supabase
+      .from('device_registrations')
+      .select('user_name')
+      .eq('device_id', deviceId)
+      .maybeSingle()
+      .then(({ data }) => {
+        deviceOwnerRef.current = data?.user_name ?? null;
+      });
 
     const checkOverdue = () => {
       const { tasks } = useTaskStore.getState();
+      const owner = deviceOwnerRef.current;
 
       tasks.forEach((task) => {
         if (task.completed) return;
 
+        // Only notify if this device's owner is assigned to the task
+        if (owner && !task.assigneeIds.includes(owner)) return;
+
         const dueDate = new Date(task.dueDate);
         const isOverdue = isPast(dueDate) && !isToday(dueDate);
-
         if (!isOverdue) return;
 
-        // For day-based tasks, notify daily
         const todayKey = `${task.id}-${new Date().toDateString()}`;
         if (notifiedRef.current.has(todayKey)) return;
-
-        // Mark as notified for today
         notifiedRef.current.add(todayKey);
 
         const dayLabel = task.dueDay !== undefined ? DAY_NAMES[task.dueDay] : '';
@@ -58,10 +71,8 @@ export function useOverdueNotifications() {
           ? `המשימה "${task.title}" הייתה אמורה להתבצע ב${dayLabel} ועדיין לא בוצעה!`
           : `המשימה "${task.title}" באיחור!`;
 
-        // Send browser notification
         sendNotification('⚠️ משימה באיחור', message);
 
-        // Also add to in-app notifications
         const notification = {
           id: crypto.randomUUID(),
           type: 'overdue' as const,
@@ -72,10 +83,9 @@ export function useOverdueNotifications() {
           createdAt: new Date().toISOString(),
         };
 
-        // Only add in-app notification if not already one for this task today
         const existingNotifications = useTaskStore.getState().notifications;
         const alreadyNotified = existingNotifications.some(
-          (n) => n.taskId === task.id && n.type === 'overdue' && 
+          (n) => n.taskId === task.id && n.type === 'overdue' &&
                  new Date(n.createdAt).toDateString() === new Date().toDateString()
         );
 
@@ -85,7 +95,6 @@ export function useOverdueNotifications() {
       });
     };
 
-    // Check immediately, then every 60 seconds
     checkOverdue();
     intervalRef.current = setInterval(checkOverdue, 60 * 1000);
 
