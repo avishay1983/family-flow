@@ -191,7 +191,46 @@ export function AppSidebar() {
         </SidebarContent>
 
         {currentUser && (
-          <SidebarFooter className="p-2">
+          <SidebarFooter className="p-2 space-y-1">
+            {/* Push Status Indicator */}
+            {!collapsed && (() => {
+              const config = pushStatusConfig[pushStatus];
+              const Icon = config.icon;
+              const canSubscribe = pushStatus === 'not-subscribed';
+
+              return (
+                <button
+                  onClick={async () => {
+                    if (canSubscribe) {
+                      const permission = await Notification.requestPermission();
+                      if (permission === 'granted') {
+                        recheckPush();
+                      } else {
+                        recheckPush();
+                      }
+                    }
+                  }}
+                  className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-right text-xs transition-colors ${
+                    canSubscribe ? 'cursor-pointer hover:bg-accent/50' : 'cursor-default'
+                  }`}
+                  title={config.description}
+                >
+                  <Icon className={`h-4 w-4 shrink-0 ${config.color}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-medium ${config.color}`}>{config.label}</div>
+                    {pushStatus === 'denied' && (
+                      <div className="text-[10px] text-destructive/80 mt-0.5 leading-tight">
+                        שנה הרשאות בהגדרות הדפדפן
+                      </div>
+                    )}
+                  </div>
+                  {pushStatus === 'subscribed' && (
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                  )}
+                </button>
+              );
+            })()}
+
             <Button
               variant="ghost"
               onClick={logout}
