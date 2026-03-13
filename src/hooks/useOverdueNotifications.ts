@@ -58,9 +58,20 @@ export function useOverdueNotifications() {
         // Only notify if this device's owner is assigned to the task
         if (owner && !task.assigneeIds.includes(owner)) return;
 
-        const dueDate = new Date(task.dueDate);
-        const isOverdue = isPast(dueDate) && !isToday(dueDate);
-        if (!isOverdue) return;
+        // Build full due datetime (date + optional time)
+        let dueDateTime: Date;
+        if (task.dueTime) {
+          const [h, m] = task.dueTime.split(':').map(Number);
+          const d = new Date(task.dueDate + 'T00:00:00');
+          d.setHours(h, m, 0, 0);
+          dueDateTime = d;
+        } else {
+          // No time set – treat end-of-day as deadline
+          const d = new Date(task.dueDate + 'T23:59:59');
+          dueDateTime = d;
+        }
+
+        if (!isPast(dueDateTime)) return;
 
         const todayKey = `${task.id}-${new Date().toDateString()}`;
         if (notifiedRef.current.has(todayKey)) return;
