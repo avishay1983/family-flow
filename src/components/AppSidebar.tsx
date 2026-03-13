@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Workspace } from '@/lib/types';
 import { WorkspaceMembersDialog } from './WorkspaceMembersDialog';
+import { supabase } from '@/integrations/supabase/client';
 import shabbatIcon from '@/assets/shabbat-icon.png';
 import {
   Sidebar,
@@ -16,6 +17,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -58,9 +60,33 @@ export function AppSidebar() {
   const [membersWsId, setMembersWsId] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
   const [newIcon, setNewIcon] = useState('📁');
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [allUsers, setAllUsers] = useState<string[]>([]);
+
+  // Fetch all known users from workspaces members + device_registrations
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const membersFromWorkspaces = new Set<string>();
+      // Get all workspace members from store
+      workspaces.forEach(w => w.members.forEach(m => membersFromWorkspaces.add(m)));
+      
+      // Get users from device_registrations
+      const { data } = await supabase.from('device_registrations').select('user_name');
+      if (data) data.forEach(row => membersFromWorkspaces.add(row.user_name));
+      
+      setAllUsers(Array.from(membersFromWorkspaces).sort());
+    };
+    if (showAdd) fetchUsers();
+  }, [showAdd, workspaces]);
 
   const getTaskCount = (wsId: string) =>
     tasks.filter((t) => t.workspaceId === wsId && !t.completed).length;
+
+  const toggleMember = (name: string) => {
+    setSelectedMembers(prev => 
+      prev.includes(name) ? prev.filter(m => m !== name) : [...prev, name]
+    );
+  };
 
   const handleAdd = () => {
     if (!newName.trim()) return;
@@ -69,11 +95,12 @@ export function AppSidebar() {
       name: newName.trim(),
       icon: newIcon,
       color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`,
-      members: [],
+      members: selectedMembers,
     };
     addWorkspace(ws);
     setNewName('');
     setNewIcon('📁');
+    setSelectedMembers([]);
     setShowAdd(false);
   };
 
@@ -202,6 +229,30 @@ export function AppSidebar() {
                 autoFocus
               />
             </div>
+            {allUsers.length > 0 && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">חברים</label>
+                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                  {allUsers.map((user) => (
+                    <label
+                      key={user}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-sm cursor-pointer transition-colors ${
+                        selectedMembers.includes(user)
+                          ? 'bg-primary/10 text-primary border border-primary/30'
+                          : 'bg-secondary hover:bg-secondary/80 border border-transparent'
+                      }`}
+                    >
+                      <Checkbox
+                        checked={selectedMembers.includes(user)}
+                        onCheckedChange={() => toggleMember(user)}
+                        className="h-3.5 w-3.5"
+                      />
+                      {user}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
             <Button onClick={handleAdd} className="w-full" disabled={!newName.trim()}>
               צור מרחב עבודה
             </Button>
