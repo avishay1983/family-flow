@@ -144,8 +144,9 @@ export function ListView() {
                         </span>
                         <span className="text-xs text-muted-foreground">
                           ({dateTasks.length})
-                        </span>
-                      <div className="space-y-1">
+                         </span>
+                       </div>
+                       <div className="space-y-1">
                         <AnimatePresence>
                           {dateTasks.map((task) => {
                             const ws = workspaces.find((w) => w.id === task.workspaceId);
