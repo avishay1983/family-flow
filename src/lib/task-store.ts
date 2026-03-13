@@ -10,6 +10,7 @@ interface TaskStore {
   viewMode: ViewMode;
   searchQuery: string;
   isLoading: boolean;
+  currentUser: string | null;
 
   loadFromDB: () => Promise<void>;
 
