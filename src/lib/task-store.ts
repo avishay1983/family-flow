@@ -155,7 +155,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
     if (updates.title !== undefined) dbUpdates.title = updates.title;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
     if (updates.workspaceId !== undefined) dbUpdates.workspace_id = updates.workspaceId;
-    if (updates.assigneeId !== undefined) dbUpdates.assignee_id = updates.assigneeId;
+    if (updates.assigneeIds !== undefined) dbUpdates.assignee_ids = updates.assigneeIds;
     if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
     if (updates.status !== undefined) dbUpdates.status = updates.status;
     if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
