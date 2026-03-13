@@ -105,7 +105,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
       title,
       description,
       workspaceId,
-      assigneeId,
+      assigneeIds,
       priority,
       status: 'todo',
       tags,
