@@ -99,12 +99,12 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
     ]);
     const loadedWorkspaces = (workspacesRes.data || []).map(dbToWorkspace);
     const currentActive = get().activeWorkspace;
-    const needsDefault = !currentActive || !loadedWorkspaces.some(w => w.id === currentActive);
+    const stillExists = currentActive && loadedWorkspaces.some(w => w.id === currentActive);
     set({
       tasks: (tasksRes.data || []).map(dbToTask),
       workspaces: loadedWorkspaces,
       notifications: (notificationsRes.data || []).map(dbToNotification),
-      activeWorkspace: needsDefault && loadedWorkspaces.length > 0 ? loadedWorkspaces[0].id : (needsDefault ? null : currentActive),
+      activeWorkspace: stillExists ? currentActive : null,
       isLoading: false,
     });
   },
