@@ -5,7 +5,7 @@ import { Task, TaskStatus, Priority } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { format, isPast, isToday } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2, Pencil } from 'lucide-react';
 import { RecurringTaskDialog } from './RecurringTaskDialog';
 import { EditTaskModal } from './EditTaskModal';
 import { motion } from 'framer-motion';
@@ -168,13 +168,22 @@ export function KanbanView() {
                         {!isMobile && (
                           <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
                         )}
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setDeleteId(task.id); }}
-                          className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all shrink-0 mt-0.5 md:block hidden"
-                          title="מחק משימה"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                        <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setEditTask(task); }}
+                            className="p-1 rounded hover:bg-accent transition-all text-muted-foreground hover:text-foreground md:opacity-0 md:group-hover:opacity-100"
+                            title="ערוך משימה"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setDeleteId(task.id); }}
+                            className="p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all text-muted-foreground md:opacity-0 md:group-hover:opacity-100"
+                            title="מחק משימה"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
                             <div className={`h-2 w-2 rounded-full shrink-0 ${priorityDot[task.priority]}`} />
