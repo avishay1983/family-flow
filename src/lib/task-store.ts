@@ -97,10 +97,14 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       supabase.from('workspaces').select('*').order('created_at', { ascending: true }),
       supabase.from('notifications').select('*').order('created_at', { ascending: false }),
     ]);
+    const loadedWorkspaces = (workspacesRes.data || []).map(dbToWorkspace);
+    const currentActive = get().activeWorkspace;
+    const needsDefault = !currentActive || !loadedWorkspaces.some(w => w.id === currentActive);
     set({
       tasks: (tasksRes.data || []).map(dbToTask),
-      workspaces: (workspacesRes.data || []).map(dbToWorkspace),
+      workspaces: loadedWorkspaces,
       notifications: (notificationsRes.data || []).map(dbToNotification),
+      activeWorkspace: needsDefault && loadedWorkspaces.length > 0 ? loadedWorkspaces[0].id : (needsDefault ? null : currentActive),
       isLoading: false,
     });
   },
