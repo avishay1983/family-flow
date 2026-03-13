@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          created_at: string
+          id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          value?: string
+        }
+        Relationships: []
+      }
       device_registrations: {
         Row: {
           device_id: string
@@ -65,6 +83,33 @@ export type Database = {
           task_id?: string
           task_title?: string
           type?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_name: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_name: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_name?: string
         }
         Relationships: []
       }
