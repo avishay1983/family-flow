@@ -33,7 +33,7 @@ export function NotificationsDropdown({ onClose }: Props) {
   return (
     <div
       ref={ref}
-      className="fixed left-2 right-2 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 rounded-xl border border-border bg-card shadow-lg z-50"
+      className="fixed left-2 right-2 top-16 sm:absolute sm:right-auto sm:left-0 sm:top-full sm:mt-2 sm:w-80 rounded-xl border border-border bg-card shadow-lg z-50"
       dir="rtl"
     >
       <div className="flex items-center justify-between border-b border-border p-3">
