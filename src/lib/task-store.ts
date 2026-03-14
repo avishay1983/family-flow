@@ -86,6 +86,20 @@ function dbToNotification(row: any): Notification {
   };
 }
 
+// Helper: send push notification to assigned users
+async function notifyAssignedUsers(taskTitle: string, assigneeIds: string[], assignedBy: string | null) {
+  try {
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    await fetch(`https://${projectId}.supabase.co/functions/v1/push-notifications?action=notify-assigned`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taskTitle, assigneeIds, assignedBy }),
+    });
+  } catch (err) {
+    console.error('Notify assigned error:', err);
+  }
+}
+
 export const useTaskStore = create<TaskStore>()((set, get) => ({
   tasks: [],
   notifications: [],
@@ -154,6 +168,33 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
     }).then(({ error }) => {
       if (error) console.error('Error adding task:', error);
     });
+
+    // Notify assigned users via push
+    const currentUser = get().currentUser;
+    if (task.assigneeIds.length > 0) {
+      notifyAssignedUsers(task.title, task.assigneeIds, currentUser);
+      // Add in-app notification for assigned users
+      const assignedNotification: Notification = {
+        id: crypto.randomUUID(),
+        type: 'assigned',
+        taskId: task.id,
+        taskTitle: task.title,
+        message: `המשימה "${task.title}" שויכה אליך${currentUser ? ` על ידי ${currentUser}` : ''}`,
+        read: false,
+        createdAt: new Date().toISOString(),
+      };
+      set((s) => ({ notifications: [assignedNotification, ...s.notifications] }));
+      supabase.from('notifications').insert({
+        id: assignedNotification.id,
+        type: assignedNotification.type,
+        task_id: assignedNotification.taskId,
+        task_title: assignedNotification.taskTitle,
+        message: assignedNotification.message,
+        read: false,
+      }).then(({ error }) => {
+        if (error) console.error('Error adding notification:', error);
+      });
+    }
   },
 
   updateTask: (id, updates) => {
