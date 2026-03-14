@@ -166,28 +166,6 @@ export function AppHeader() {
         <Plus className="h-6 w-6" />
       </Button>
 
-      {/* Delete All Confirmation */}
-      <AlertDialog open={showDeleteAll} onOpenChange={setShowDeleteAll}>
-        <AlertDialogContent dir="rtl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>מחיקת כל המשימות</AlertDialogTitle>
-            <AlertDialogDescription>
-              {ws
-                ? `האם אתה בטוח שברצונך למחוק את כל המשימות ב"${ws.icon} ${ws.name}"? פעולה זו לא ניתנת לביטול.`
-                : 'האם אתה בטוח שברצונך למחוק את כל המשימות? פעולה זו לא ניתנת לביטול.'}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row-reverse gap-2">
-            <AlertDialogAction
-              onClick={() => { deleteAllTasks(); setShowDeleteAll(false); }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              מחק הכל
-            </AlertDialogAction>
-            <AlertDialogCancel>ביטול</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <CreateTaskModal open={showCreateTask} onClose={() => setShowCreateTask(false)} />
     </>
