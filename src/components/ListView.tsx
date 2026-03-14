@@ -102,6 +102,10 @@ function groupTasksByWeek(tasks: Task[]): WeekSection[] {
     sections.push({ sectionLabel: '🔮 שבועות הבאים', sectionType: 'future', dateGroups: futureGroups });
   }
 
+  if (noDate.length > 0) {
+    sections.push({ sectionLabel: '📋 ללא תאריך', sectionType: 'future', dateGroups: [{ label: 'ללא תאריך', dateKey: 'no-date', tasks: noDate }] });
+  }
+
   return sections;
 }
 
