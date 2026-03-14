@@ -157,7 +157,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       id: task.id,
       title: task.title,
       description: task.description,
-      workspace_id: task.workspaceId,
+      workspace_id: task.workspaceId || null,
       assignee_ids: task.assigneeIds,
       priority: task.priority,
       status: task.status,
@@ -168,6 +168,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       reminder_before: task.reminderBefore || null,
       completed: task.completed,
       created_at: task.createdAt,
+      is_backlog: task.isBacklog || false,
     }).then(({ error }) => {
       if (error) console.error('Error adding task:', error);
     });
