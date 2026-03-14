@@ -15,16 +15,6 @@ import {
 import shabbatIcon from '@/assets/shabbat-icon.png';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { CreateTaskModal } from './CreateTaskModal';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 
 const SPECIAL_ICONS: Record<string, string> = { shabbat: shabbatIcon };
 
