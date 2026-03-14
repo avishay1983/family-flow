@@ -123,15 +123,6 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-1">
-          {/* Mobile: delete all icon */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 text-destructive md:hidden"
-            onClick={() => setShowDeleteAll(true)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
 
           <div className="flex items-center rounded-lg border border-border p-0.5">
             <Button
