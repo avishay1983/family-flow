@@ -86,6 +86,20 @@ function dbToNotification(row: any): Notification {
   };
 }
 
+// Helper: send push notification to assigned users
+async function notifyAssignedUsers(taskTitle: string, assigneeIds: string[], assignedBy: string | null) {
+  try {
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    await fetch(`https://${projectId}.supabase.co/functions/v1/push-notifications?action=notify-assigned`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taskTitle, assigneeIds, assignedBy }),
+    });
+  } catch (err) {
+    console.error('Notify assigned error:', err);
+  }
+}
+
 export const useTaskStore = create<TaskStore>()((set, get) => ({
   tasks: [],
   notifications: [],
