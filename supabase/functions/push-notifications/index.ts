@@ -342,6 +342,47 @@ serve(async (req) => {
       });
     }
 
+    if (action === 'notify-assigned') {
+      const { taskTitle, assigneeIds, assignedBy } = await req.json();
+      if (!assigneeIds || assigneeIds.length === 0) {
+        return new Response(JSON.stringify({ sent: 0 }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const keys = await getVapidKeys();
+
+      const { data: subscriptions } = await supabase
+        .from('push_subscriptions')
+        .select('endpoint, p256dh, auth, user_name')
+        .in('user_name', assigneeIds);
+
+      // Filter out the person who assigned (don't notify yourself)
+      const targetSubs = (subscriptions || []).filter(s => s.user_name !== assignedBy);
+
+      if (targetSubs.length === 0) {
+        return new Response(JSON.stringify({ sent: 0 }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const sent = await sendPushToSubscriptions(
+        supabase,
+        targetSubs,
+        {
+          title: '📋 משימה חדשה שויכה אליך',
+          body: `"${taskTitle}" שויכה אליך${assignedBy ? ` על ידי ${assignedBy}` : ''}`,
+          icon: '/pwa-192x192.png',
+          tag: `assigned-${Date.now()}`,
+        },
+        keys
+      );
+
+      return new Response(JSON.stringify({ sent }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (action === 'check-and-send') {
       const keys = await getVapidKeys();
 

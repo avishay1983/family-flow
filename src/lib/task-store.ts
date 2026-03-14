@@ -154,6 +154,33 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
     }).then(({ error }) => {
       if (error) console.error('Error adding task:', error);
     });
+
+    // Notify assigned users via push
+    const currentUser = get().currentUser;
+    if (task.assigneeIds.length > 0) {
+      notifyAssignedUsers(task.title, task.assigneeIds, currentUser);
+      // Add in-app notification for assigned users
+      const assignedNotification: Notification = {
+        id: crypto.randomUUID(),
+        type: 'assigned',
+        taskId: task.id,
+        taskTitle: task.title,
+        message: `המשימה "${task.title}" שויכה אליך${currentUser ? ` על ידי ${currentUser}` : ''}`,
+        read: false,
+        createdAt: new Date().toISOString(),
+      };
+      set((s) => ({ notifications: [assignedNotification, ...s.notifications] }));
+      supabase.from('notifications').insert({
+        id: assignedNotification.id,
+        type: assignedNotification.type,
+        task_id: assignedNotification.taskId,
+        task_title: assignedNotification.taskTitle,
+        message: assignedNotification.message,
+        read: false,
+      }).then(({ error }) => {
+        if (error) console.error('Error adding notification:', error);
+      });
+    }
   },
 
   updateTask: (id, updates) => {
