@@ -11,10 +11,11 @@ interface TaskStore {
   searchQuery: string;
   isLoading: boolean;
   currentUser: string | null;
+  authUserId: string | null;
 
   loadFromDB: () => Promise<void>;
-  setCurrentUser: (name: string) => void;
-  logout: () => void;
+  setCurrentUser: (name: string, authId?: string) => void;
+  logout: () => Promise<void>;
 
   setActiveWorkspace: (id: string | null) => void;
   setViewMode: (mode: ViewMode) => void;
@@ -42,7 +43,6 @@ interface TaskStore {
   getUnreadNotificationCount: () => number;
 }
 
-// Helper: convert DB row to Task
 function dbToTask(row: any): Task {
   return {
     id: row.id,
@@ -62,7 +62,6 @@ function dbToTask(row: any): Task {
   };
 }
 
-// Helper: convert DB row to Workspace
 function dbToWorkspace(row: any): Workspace {
   return {
     id: row.id,
@@ -73,7 +72,6 @@ function dbToWorkspace(row: any): Workspace {
   };
 }
 
-// Helper: convert DB row to Notification
 function dbToNotification(row: any): Notification {
   return {
     id: row.id,
@@ -86,7 +84,6 @@ function dbToNotification(row: any): Notification {
   };
 }
 
-// Helper: send push notification to newly assigned users
 async function notifyAssignedUsers(taskTitle: string, assigneeIds: string[], assignedBy: string | null) {
   try {
     const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
@@ -113,17 +110,17 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
   viewMode: 'list',
   searchQuery: '',
   isLoading: true,
-  currentUser: localStorage.getItem('currentUser'),
-  setCurrentUser: (name) => {
-    localStorage.setItem('currentUser', name);
-    set({ currentUser: name });
-    // Reload to filter workspaces by the new user
+  currentUser: null,
+  authUserId: null,
+
+  setCurrentUser: (name, authId) => {
+    set({ currentUser: name, authUserId: authId || null });
     get().loadFromDB();
   },
-  logout: () => {
-    localStorage.removeItem('currentUser');
-    set({ currentUser: null, activeWorkspace: null });
-    get().loadFromDB();
+
+  logout: async () => {
+    await supabase.auth.signOut();
+    set({ currentUser: null, authUserId: null, activeWorkspace: null });
   },
 
   loadFromDB: async () => {
@@ -174,17 +171,15 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       if (error) console.error('Error adding task:', error);
     });
 
-    // Notify assigned users via push
     const currentUser = get().currentUser;
     if (task.assigneeIds.length > 0) {
       notifyAssignedUsers(task.title, task.assigneeIds, currentUser);
-      // Add in-app notification for assigned users
       const assignedNotification: Notification = {
         id: crypto.randomUUID(),
         type: 'assigned',
         taskId: task.id,
         taskTitle: task.title,
-        message: `המשימה "${task.title}" שויכה אליך${currentUser ? ` על ידי ${currentUser}` : ''}`,
+        message: `המשימה \\\"${task.title}\\\" שויכה אליך${currentUser ? ` על ידי ${currentUser}` : ''}`,
         read: false,
         createdAt: new Date().toISOString(),
       };
@@ -237,19 +232,16 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
 
     if (newAssignees.length > 0) {
       notifyAssignedUsers(taskTitle, newAssignees, currentUser);
-
       const assignedNotification: Notification = {
         id: crypto.randomUUID(),
         type: 'assigned',
         taskId: id,
         taskTitle,
-        message: `המשימה "${taskTitle}" שויכה אליך${currentUser ? ` על ידי ${currentUser}` : ''}`,
+        message: `המשימה \\\"${taskTitle}\\\" שויכה אליך${currentUser ? ` על ידי ${currentUser}` : ''}`,
         read: false,
         createdAt: new Date().toISOString(),
       };
-
       set((s) => ({ notifications: [assignedNotification, ...s.notifications] }));
-
       supabase.from('notifications').insert({
         id: assignedNotification.id,
         type: assignedNotification.type,
