@@ -77,7 +77,7 @@ export function usePushSubscription(currentUser: string | null) {
           // In most browsers this returns existing subscription if compatible
           subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: appServerKey.buffer as ArrayBuffer,
+            applicationServerKey: appServerKey,
           });
         } catch (err) {
           // Fallback for browsers that require re-subscribe only on invalid state
