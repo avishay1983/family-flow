@@ -53,9 +53,20 @@ function groupTasksByWeek(tasks: Task[]): WeekSection[] {
   const thisWeek: Record<string, Task[]> = {};
   const future: Record<string, Task[]> = {};
 
+  const noDate: Task[] = [];
+
   for (const task of tasks) {
+    if (!task.dueDate) {
+      noDate.push(task);
+      continue;
+    }
     const key = task.dueDate.split('T')[0];
     const date = parseISO(key);
+
+    if (isNaN(date.getTime())) {
+      noDate.push(task);
+      continue;
+    }
 
     if (isPast(date) && !isToday(date)) {
       if (!overdue[key]) overdue[key] = [];
@@ -89,6 +100,10 @@ function groupTasksByWeek(tasks: Task[]): WeekSection[] {
   const futureGroups = toGroups(future);
   if (futureGroups.length > 0) {
     sections.push({ sectionLabel: '🔮 שבועות הבאים', sectionType: 'future', dateGroups: futureGroups });
+  }
+
+  if (noDate.length > 0) {
+    sections.push({ sectionLabel: '📋 ללא תאריך', sectionType: 'future', dateGroups: [{ label: 'ללא תאריך', dateKey: 'no-date', tasks: noDate }] });
   }
 
   return sections;
