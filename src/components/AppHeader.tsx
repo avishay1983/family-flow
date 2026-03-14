@@ -110,15 +110,6 @@ export function AppHeader() {
           <span>משימה חדשה</span>
         </Button>
 
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setShowDeleteAll(true)}
-          className="gap-1.5 rounded-lg font-medium hidden md:flex text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-        >
-          <Trash2 className="h-4 w-4" />
-          <span>מחק הכל</span>
-        </Button>
 
         <div className="relative flex-1 max-w-md mx-auto">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
