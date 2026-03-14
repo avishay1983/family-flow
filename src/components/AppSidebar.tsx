@@ -233,14 +233,27 @@ export function AppSidebar() {
               );
             })()}
 
-            <Button
-              variant="ghost"
-              onClick={logout}
-              className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <LogOut className="h-4 w-4" />
-              {!collapsed && <span>יציאה ({currentUser})</span>}
-            </Button>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                onClick={logout}
+                className="flex-1 justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <LogOut className="h-4 w-4" />
+                {!collapsed && <span>יציאה ({currentUser})</span>}
+              </Button>
+              {!collapsed && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowPushDebug(true)}
+                  className="shrink-0 text-muted-foreground hover:text-foreground"
+                  title="Push Debug"
+                >
+                  <Bug className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </SidebarFooter>
         )}
       </Sidebar>
