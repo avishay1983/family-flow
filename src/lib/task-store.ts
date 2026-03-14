@@ -219,6 +219,39 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
         if (error) console.error('Error updating task:', error);
       });
     }
+
+    // Notify newly assigned users
+    if (updates.assigneeIds !== undefined) {
+      const existingTask = get().tasks.find((t) => t.id === id);
+      const previousAssignees = existingTask?.assigneeIds || [];
+      const newAssignees = updates.assigneeIds.filter((a) => !previousAssignees.includes(a));
+      const currentUser = get().currentUser;
+      const taskTitle = updates.title || existingTask?.title || '';
+
+      if (newAssignees.length > 0) {
+        notifyAssignedUsers(taskTitle, newAssignees, currentUser);
+        const assignedNotification: Notification = {
+          id: crypto.randomUUID(),
+          type: 'assigned',
+          taskId: id,
+          taskTitle,
+          message: `המשימה "${taskTitle}" שויכה אליך${currentUser ? ` על ידי ${currentUser}` : ''}`,
+          read: false,
+          createdAt: new Date().toISOString(),
+        };
+        set((s) => ({ notifications: [assignedNotification, ...s.notifications] }));
+        supabase.from('notifications').insert({
+          id: assignedNotification.id,
+          type: assignedNotification.type,
+          task_id: assignedNotification.taskId,
+          task_title: assignedNotification.taskTitle,
+          message: assignedNotification.message,
+          read: false,
+        }).then(({ error }) => {
+          if (error) console.error('Error adding notification:', error);
+        });
+      }
+    }
   },
 
   deleteTask: (id) => {
