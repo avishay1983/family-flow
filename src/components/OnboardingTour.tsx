@@ -171,16 +171,30 @@ export function OnboardingTour() {
     return steps;
   }, []);
 
+  // Force tour target elements to be visible (e.g. opacity-0 elements)
+  const forceTargetVisible = useCallback((target: string) => {
+    const el = document.querySelector(`[data-tour="${target}"]`) as HTMLElement;
+    if (el) {
+      el.style.opacity = '1';
+      el.dataset.tourForced = 'true';
+    }
+  }, []);
+
+  const restoreTargetVisibility = useCallback(() => {
+    document.querySelectorAll('[data-tour-forced="true"]').forEach((el) => {
+      (el as HTMLElement).style.opacity = '';
+      delete (el as HTMLElement).dataset.tourForced;
+    });
+  }, []);
+
   // Open sidebar if the current step requires it
   const ensureSidebarOpen = useCallback((step: TourStep) => {
     if (!step.requiresSidebar) return;
-    // Check if sidebar is already open by looking for a visible sidebar element
     const sidebarEl = document.querySelector('[data-tour="backlog"]');
     if (sidebarEl) {
       const rect = sidebarEl.getBoundingClientRect();
-      if (rect.width > 0) return; // already visible
+      if (rect.width > 0) return;
     }
-    // Click the sidebar trigger to open it
     const trigger = document.querySelector('[data-tour="sidebar-trigger"]') as HTMLButtonElement;
     if (trigger) trigger.click();
   }, []);
