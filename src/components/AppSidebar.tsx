@@ -9,6 +9,7 @@ import { EditGroupDialog } from './EditGroupDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { usePushStatus, PushStatus } from '@/hooks/usePushStatus';
 import shabbatIcon from '@/assets/shabbat-icon.png';
+import taskmasterLogo from '@/assets/taskmaster-logo.png';
 import {
   Sidebar,
   SidebarContent,
