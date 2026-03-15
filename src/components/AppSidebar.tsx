@@ -164,6 +164,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => setActiveWorkspace('backlog')}
+                    data-tour="backlog"
                     className={`gap-3 rounded-lg transition-colors ${
                       activeWorkspace === 'backlog'
                         ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
