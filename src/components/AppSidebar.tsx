@@ -216,6 +216,7 @@ export function AppSidebar() {
                               }}
                               className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
                               title="הזמנה למרחב"
+                              data-tour="invite-link"
                             >
                               <Link2 className="h-3 w-3" />
                             </button>
