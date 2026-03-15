@@ -385,6 +385,15 @@ export function AppSidebar() {
       )}
 
       <PushDebugPanel open={showPushDebug} onClose={() => setShowPushDebug(false)} />
+
+      {/* Invite Link Dialog */}
+      {inviteWsId && (
+        <InviteLinkDialog
+          workspaceId={inviteWsId}
+          open={!!inviteWsId}
+          onClose={() => setInviteWsId(null)}
+        />
+      )}
     </>
   );
 }
