@@ -95,7 +95,7 @@ export function AppHeader() {
         </Button>
 
 
-        <div className="relative flex-1 max-w-md mx-auto">
+        <div className="relative flex-1 max-w-md mx-auto" data-tour="search">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="חיפוש משימות..."
