@@ -112,7 +112,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
       title,
       description,
       workspaceId: workspaceId || '',
-      assigneeIds,
+      assigneeIds: isBacklogMode && currentUser ? [currentUser] : assigneeIds,
       priority,
       status: 'todo',
       tags,
