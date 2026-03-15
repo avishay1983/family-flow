@@ -38,7 +38,7 @@ export function AppHeader() {
   return (
     <>
       <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background/80 backdrop-blur-sm px-3 md:px-4">
-        <SidebarTrigger className="shrink-0" />
+        <SidebarTrigger className="shrink-0" data-tour="sidebar-trigger" />
         <img src={taskmasterLogo} alt="TaskMaster" className="w-7 h-7 shrink-0" />
 
         {/* Workspace switcher */}
@@ -88,13 +88,14 @@ export function AppHeader() {
           size="sm"
           onClick={() => setShowCreateTask(true)}
           className="gap-1.5 rounded-lg font-medium hidden md:flex"
+          data-tour="add-task"
         >
           <Plus className="h-4 w-4" />
           <span>משימה חדשה</span>
         </Button>
 
 
-        <div className="relative flex-1 max-w-md mx-auto">
+        <div className="relative flex-1 max-w-md mx-auto" data-tour="search">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="חיפוש משימות..."
@@ -107,7 +108,7 @@ export function AppHeader() {
 
         <div className="flex items-center gap-1">
 
-          <div className="flex items-center rounded-lg border border-border p-0.5">
+          <div className="flex items-center rounded-lg border border-border p-0.5" data-tour="view-toggle">
             <Button
               variant={viewMode === 'list' ? 'secondary' : 'ghost'}
               size="icon"
@@ -126,7 +127,7 @@ export function AppHeader() {
             </Button>
           </div>
 
-          <div className="relative">
+          <div className="relative" data-tour="notifications">
             <Button
               variant="ghost"
               size="icon"
@@ -153,6 +154,7 @@ export function AppHeader() {
         size="icon"
         onClick={() => setShowCreateTask(true)}
         className="fixed bottom-6 left-6 z-40 h-14 w-14 rounded-full shadow-lg md:hidden"
+        data-tour="add-task-mobile"
       >
         <Plus className="h-6 w-6" />
       </Button>
