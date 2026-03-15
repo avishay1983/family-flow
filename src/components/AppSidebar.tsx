@@ -198,6 +198,16 @@ export function AppSidebar() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
+                                setInviteWsId(ws.id);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
+                              title="הזמנה למרחב"
+                            >
+                              <Link2 className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setDeleteId(ws.id);
                               }}
                               className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 hover:text-destructive transition-all"
