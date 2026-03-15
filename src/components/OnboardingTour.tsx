@@ -6,14 +6,13 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 const ONBOARDING_KEY = 'taskmaster_onboarding_done';
 
 interface TourStep {
-  /** data-tour attribute value to find the element */
   target: string;
   title: string;
   description: string;
-  /** Position of tooltip relative to the target */
   placement: 'top' | 'bottom' | 'left' | 'right';
-  /** If target not found, fallback to center-screen modal */
   fallbackCenter?: boolean;
+  /** If true, open sidebar before showing this step */
+  requiresSidebar?: boolean;
 }
 
 const TOUR_STEPS: TourStep[] = [
@@ -26,9 +25,37 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     target: 'sidebar-trigger',
-    title: 'תפריט צדדי',
-    description: 'פתח את התפריט הצדדי כדי לראות את מרחבי העבודה, הקבוצות, הגדרות התראות, ולהתנתק.',
+    title: 'תפריט צדדי 📂',
+    description: 'פתח את התפריט הצדדי כדי לראות את מרחבי העבודה, הקבוצות, הגדרות והתראות.',
     placement: 'left',
+  },
+  {
+    target: 'backlog',
+    title: 'Backlog — המשימות האישיות שלך 📋',
+    description: 'כאן תוכל לשמור משימות לתכנון עתידי. הבקלוג הוא אישי — כל משתמש רואה רק את המשימות שלו. כשתהיה מוכן, תוכל לקשר אותן למרחב עבודה.',
+    placement: 'left',
+    requiresSidebar: true,
+  },
+  {
+    target: 'add-workspace',
+    title: 'הקמת מרחב עבודה חדש ➕',
+    description: 'לחץ כאן כדי ליצור מרחב עבודה חדש. בחר אייקון, שם, והוסף חברי צוות. כל מרחב הוא פרויקט נפרד עם המשימות שלו.',
+    placement: 'left',
+    requiresSidebar: true,
+  },
+  {
+    target: 'invite-link',
+    title: 'שליחת קישור הזמנה 🔗',
+    description: 'שלח קישור הצטרפות לחברי צוות כדי שיוכלו להיכנס למרחב העבודה שלך. הקישור תקף ל-7 ימים וניתן להגביל את מספר השימושים.',
+    placement: 'left',
+    requiresSidebar: true,
+  },
+  {
+    target: 'create-group',
+    title: 'יצירת קבוצה 👥',
+    description: 'ארגן מרחבי עבודה קשורים יחד בקבוצות. למשל, קבוצה "משפחה" יכולה להכיל מרחבים כמו "נקיונות" ו"קניות". חברי הקבוצה מקבלים גישה אוטומטית לכל המרחבים.',
+    placement: 'left',
+    requiresSidebar: true,
   },
   {
     target: 'search',
