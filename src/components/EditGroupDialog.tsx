@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, UserPlus, X, Trash2 } from 'lucide-react';
+import { Copy, Check, Loader2, UserPlus, X, Trash2, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
