@@ -6,6 +6,7 @@ interface TaskStore {
   tasks: Task[];
   notifications: Notification[];
   workspaces: Workspace[];
+  groups: Group[];
   activeWorkspace: string | null;
   viewMode: ViewMode;
   searchQuery: string;
