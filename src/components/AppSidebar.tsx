@@ -470,6 +470,12 @@ export function AppSidebar() {
 
       {/* Create Group Dialog */}
       <CreateGroupDialog open={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
+
+      {/* Edit Group Dialog */}
+      {editGroupId && (() => {
+        const g = groups.find(g => g.id === editGroupId);
+        return g ? <EditGroupDialog group={g} open={true} onClose={() => setEditGroupId(null)} /> : null;
+      })()}
     </>
   );
 }
