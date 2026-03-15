@@ -100,6 +100,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/invite/:token" element={<InvitePage />} />
+        <Route path="/invite-group/:groupId" element={<InviteGroupPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
