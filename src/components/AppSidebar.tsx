@@ -5,6 +5,7 @@ import { Workspace } from '@/lib/types';
 import { WorkspaceMembersDialog } from './WorkspaceMembersDialog';
 import { InviteLinkDialog } from './InviteLinkDialog';
 import { CreateGroupDialog } from './CreateGroupDialog';
+import { EditGroupDialog } from './EditGroupDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { usePushStatus, PushStatus } from '@/hooks/usePushStatus';
 import shabbatIcon from '@/assets/shabbat-icon.png';
@@ -39,7 +40,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Trash2, Users, LogOut, Bell, BellOff, BellRing, AlertTriangle, Bug, Archive, Link2, FolderPlus } from 'lucide-react';
+import { Plus, Trash2, Users, LogOut, Bell, BellOff, BellRing, AlertTriangle, Bug, Archive, Link2, FolderPlus, Settings } from 'lucide-react';
 
 const pushStatusConfig: Record<PushStatus, { icon: typeof Bell; label: string; color: string; description: string }> = {
   loading: { icon: Bell, label: 'בודק...', color: 'text-muted-foreground', description: 'בודק מצב התראות...' },
@@ -74,6 +75,7 @@ export function AppSidebar() {
   const [showPushDebug, setShowPushDebug] = useState(false);
   const [inviteWsId, setInviteWsId] = useState<string | null>(null);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [editGroupId, setEditGroupId] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
   const [newIcon, setNewIcon] = useState('📁');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
@@ -238,10 +240,19 @@ export function AppSidebar() {
                     const groupWorkspaces = workspaces.filter(w => w.groupId === group.id);
                     return (
                       <SidebarMenuItem key={group.id}>
-                        <div className="px-2 py-1.5">
+                        <div className="px-2 py-1.5 group/grp">
                           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-1">
                             <span>{group.icon}</span>
-                            {!collapsed && <span>{group.name}</span>}
+                            {!collapsed && <span className="flex-1">{group.name}</span>}
+                            {!collapsed && (
+                              <button
+                                onClick={() => setEditGroupId(group.id)}
+                                className="opacity-0 group-hover/grp:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
+                                title="ערוך קבוצה"
+                              >
+                                <Settings className="h-3 w-3" />
+                              </button>
+                            )}
                           </div>
                           {!collapsed && groupWorkspaces.length > 0 && (
                             <div className="mr-4 space-y-0.5">
@@ -459,6 +470,12 @@ export function AppSidebar() {
 
       {/* Create Group Dialog */}
       <CreateGroupDialog open={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
+
+      {/* Edit Group Dialog */}
+      {editGroupId && (() => {
+        const g = groups.find(g => g.id === editGroupId);
+        return g ? <EditGroupDialog group={g} open={true} onClose={() => setEditGroupId(null)} /> : null;
+      })()}
     </>
   );
 }
