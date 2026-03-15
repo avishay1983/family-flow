@@ -177,6 +177,7 @@ export function OnboardingTour() {
     if (el) {
       el.style.opacity = '1';
       el.dataset.tourForced = 'true';
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, []);
 
