@@ -4,8 +4,9 @@ import { lovable } from '@/integrations/lovable/index';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { LogIn, UserPlus, Mail, Lock, User, ArrowLeft, Sparkles } from 'lucide-react';
+import { LogIn, UserPlus, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import taskmasterLogo from '@/assets/taskmaster-logo.png';
 
 export function AuthScreen() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -87,8 +88,8 @@ export function AuthScreen() {
       <div className="w-full max-w-md mx-4 relative z-10">
         {/* Logo / Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 mb-4 shadow-lg shadow-primary/5">
-            <Sparkles className="w-8 h-8 text-primary" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4">
+            <img src={taskmasterLogo} alt="TaskMaster" className="w-16 h-16" />
           </div>
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
             TaskMaster
