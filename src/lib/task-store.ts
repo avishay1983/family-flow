@@ -119,6 +119,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
   tasks: [],
   notifications: [],
   workspaces: [],
+  groups: [],
   activeWorkspace: null,
   viewMode: 'list',
   searchQuery: '',
