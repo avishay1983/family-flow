@@ -225,6 +225,32 @@ export function EditGroupDialog({ group, open, onClose }: Props) {
               </div>
             )}
 
+            {/* Invite link */}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">לינק הזמנה לקבוצה</label>
+              <div className="flex gap-2">
+                <Input
+                  value={`${window.location.origin}/invite-group/${group.id}`}
+                  readOnly
+                  className="text-xs font-mono h-8"
+                  dir="ltr"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 shrink-0"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(`${window.location.origin}/invite-group/${group.id}`);
+                    setCopied(true);
+                    toast.success('הלינק הועתק!');
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                >
+                  {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                </Button>
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <Button onClick={handleSave} className="flex-1" disabled={!name.trim() || loading}>
                 {loading ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : null}
