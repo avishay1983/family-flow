@@ -67,7 +67,7 @@ function getNextDayDate(dayOfWeek: number): string {
 }
 
 export function CreateTaskModal({ open, onClose }: Props) {
-  const { addTask, workspaces, activeWorkspace } = useTaskStore();
+  const { addTask, workspaces, activeWorkspace, currentUser } = useTaskStore();
   const isBacklogMode = activeWorkspace === 'backlog';
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -112,7 +112,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
       title,
       description,
       workspaceId: workspaceId || '',
-      assigneeIds,
+      assigneeIds: isBacklogMode && currentUser ? [currentUser] : assigneeIds,
       priority,
       status: 'todo',
       tags,
