@@ -154,15 +154,34 @@ export function OnboardingTour() {
   const [spotlightRect, setSpotlightRect] = useState<SpotlightRect | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const [readySteps, setReadySteps] = useState<TourStep[]>([]);
 
-  // Filter steps based on what's visible (mobile vs desktop)
-  const visibleSteps = TOUR_STEPS.filter((step) => {
-    if (step.fallbackCenter) return true;
-    const el = document.querySelector(`[data-tour="${step.target}"]`);
-    if (!el) return false;
-    const rect = el.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
-  });
+  // Recompute visible steps when step changes (sidebar may have opened)
+  const recomputeVisibleSteps = useCallback(() => {
+    const steps = TOUR_STEPS.filter((step) => {
+      if (step.fallbackCenter) return true;
+      const el = document.querySelector(`[data-tour="${step.target}"]`);
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    });
+    setReadySteps(steps);
+    return steps;
+  }, []);
+
+  // Open sidebar if the current step requires it
+  const ensureSidebarOpen = useCallback((step: TourStep) => {
+    if (!step.requiresSidebar) return;
+    // Check if sidebar is already open by looking for a visible sidebar element
+    const sidebarEl = document.querySelector('[data-tour="backlog"]');
+    if (sidebarEl) {
+      const rect = sidebarEl.getBoundingClientRect();
+      if (rect.width > 0) return; // already visible
+    }
+    // Click the sidebar trigger to open it
+    const trigger = document.querySelector('[data-tour="sidebar-trigger"]') as HTMLButtonElement;
+    if (trigger) trigger.click();
+  }, []);
 
   useEffect(() => {
     const done = localStorage.getItem(ONBOARDING_KEY);
