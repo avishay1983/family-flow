@@ -6,14 +6,13 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 const ONBOARDING_KEY = 'taskmaster_onboarding_done';
 
 interface TourStep {
-  /** data-tour attribute value to find the element */
   target: string;
   title: string;
   description: string;
-  /** Position of tooltip relative to the target */
   placement: 'top' | 'bottom' | 'left' | 'right';
-  /** If target not found, fallback to center-screen modal */
   fallbackCenter?: boolean;
+  /** If true, open sidebar before showing this step */
+  requiresSidebar?: boolean;
 }
 
 const TOUR_STEPS: TourStep[] = [
@@ -26,9 +25,37 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     target: 'sidebar-trigger',
-    title: 'תפריט צדדי',
-    description: 'פתח את התפריט הצדדי כדי לראות את מרחבי העבודה, הקבוצות, הגדרות התראות, ולהתנתק.',
+    title: 'תפריט צדדי 📂',
+    description: 'פתח את התפריט הצדדי כדי לראות את מרחבי העבודה, הקבוצות, הגדרות והתראות.',
     placement: 'left',
+  },
+  {
+    target: 'backlog',
+    title: 'Backlog — המשימות האישיות שלך 📋',
+    description: 'כאן תוכל לשמור משימות לתכנון עתידי. הבקלוג הוא אישי — כל משתמש רואה רק את המשימות שלו. כשתהיה מוכן, תוכל לקשר אותן למרחב עבודה.',
+    placement: 'left',
+    requiresSidebar: true,
+  },
+  {
+    target: 'add-workspace',
+    title: 'הקמת מרחב עבודה חדש ➕',
+    description: 'לחץ כאן כדי ליצור מרחב עבודה חדש. בחר אייקון, שם, והוסף חברי צוות. כל מרחב הוא פרויקט נפרד עם המשימות שלו.',
+    placement: 'left',
+    requiresSidebar: true,
+  },
+  {
+    target: 'invite-link',
+    title: 'שליחת קישור הזמנה 🔗',
+    description: 'שלח קישור הצטרפות לחברי צוות כדי שיוכלו להיכנס למרחב העבודה שלך. הקישור תקף ל-7 ימים וניתן להגביל את מספר השימושים.',
+    placement: 'left',
+    requiresSidebar: true,
+  },
+  {
+    target: 'create-group',
+    title: 'יצירת קבוצה 👥',
+    description: 'ארגן מרחבי עבודה קשורים יחד בקבוצות. למשל, קבוצה "משפחה" יכולה להכיל מרחבים כמו "נקיונות" ו"קניות". חברי הקבוצה מקבלים גישה אוטומטית לכל המרחבים.',
+    placement: 'left',
+    requiresSidebar: true,
   },
   {
     target: 'search',
@@ -127,36 +154,58 @@ export function OnboardingTour() {
   const [spotlightRect, setSpotlightRect] = useState<SpotlightRect | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const [readySteps, setReadySteps] = useState<TourStep[]>([]);
 
-  // Filter steps based on what's visible (mobile vs desktop)
-  const visibleSteps = TOUR_STEPS.filter((step) => {
-    if (step.fallbackCenter) return true;
-    const el = document.querySelector(`[data-tour="${step.target}"]`);
-    if (!el) return false;
-    const rect = el.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
-  });
+  // Recompute visible steps when step changes (sidebar may have opened)
+  const recomputeVisibleSteps = useCallback(() => {
+    const steps = TOUR_STEPS.filter((step) => {
+      if (step.fallbackCenter) return true;
+      const el = document.querySelector(`[data-tour="${step.target}"]`);
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    });
+    setReadySteps(steps);
+    return steps;
+  }, []);
+
+  // Open sidebar if the current step requires it
+  const ensureSidebarOpen = useCallback((step: TourStep) => {
+    if (!step.requiresSidebar) return;
+    // Check if sidebar is already open by looking for a visible sidebar element
+    const sidebarEl = document.querySelector('[data-tour="backlog"]');
+    if (sidebarEl) {
+      const rect = sidebarEl.getBoundingClientRect();
+      if (rect.width > 0) return; // already visible
+    }
+    // Click the sidebar trigger to open it
+    const trigger = document.querySelector('[data-tour="sidebar-trigger"]') as HTMLButtonElement;
+    if (trigger) trigger.click();
+  }, []);
 
   useEffect(() => {
     const done = localStorage.getItem(ONBOARDING_KEY);
     if (!done) {
-      const timer = setTimeout(() => setActive(true), 1000);
+      const timer = setTimeout(() => {
+        recomputeVisibleSteps();
+        setActive(true);
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [recomputeVisibleSteps]);
 
   const updatePosition = useCallback(() => {
-    const step = visibleSteps[currentStep];
+    const steps = recomputeVisibleSteps();
+    const step = steps[currentStep];
     if (!step) return;
 
     const rect = step.fallbackCenter ? null : getElementRect(step.target);
     setSpotlightRect(rect);
 
-    // Estimate tooltip size if ref isn't mounted yet
     const tooltipW = tooltipRef.current?.offsetWidth || 300;
     const tooltipH = tooltipRef.current?.offsetHeight || 160;
     setTooltipPos(getTooltipPosition(rect, step.placement, tooltipW, tooltipH));
-  }, [currentStep, visibleSteps]);
+  }, [currentStep, recomputeVisibleSteps]);
 
   useEffect(() => {
     if (!active) return;
@@ -171,12 +220,20 @@ export function OnboardingTour() {
     };
   }, [active, updatePosition]);
 
-  // Re-measure after tooltip renders
+  // Re-measure after tooltip renders, and open sidebar if needed
   useEffect(() => {
     if (!active) return;
-    const timer = setTimeout(updatePosition, 50);
-    return () => clearTimeout(timer);
-  }, [active, currentStep, updatePosition]);
+    const step = readySteps[currentStep] || TOUR_STEPS[currentStep];
+    if (step?.requiresSidebar) {
+      ensureSidebarOpen(step);
+      // Wait for sidebar animation then recompute
+      const timer = setTimeout(updatePosition, 400);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(updatePosition, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [active, currentStep, updatePosition, ensureSidebarOpen, readySteps]);
 
   const handleClose = useCallback(() => {
     localStorage.setItem(ONBOARDING_KEY, 'true');
@@ -184,21 +241,21 @@ export function OnboardingTour() {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (currentStep < visibleSteps.length - 1) {
+    if (currentStep < readySteps.length - 1) {
       setCurrentStep((s) => s + 1);
     } else {
       handleClose();
     }
-  }, [currentStep, visibleSteps.length, handleClose]);
+  }, [currentStep, readySteps.length, handleClose]);
 
   const handlePrev = useCallback(() => {
     if (currentStep > 0) setCurrentStep((s) => s - 1);
   }, [currentStep]);
 
-  if (!active || visibleSteps.length === 0) return null;
+  if (!active || readySteps.length === 0) return null;
 
-  const step = visibleSteps[currentStep];
-  const isLast = currentStep === visibleSteps.length - 1;
+  const step = readySteps[currentStep];
+  const isLast = currentStep === readySteps.length - 1;
   const PADDING = 6;
 
   return createPortal(
@@ -250,7 +307,7 @@ export function OnboardingTour() {
       >
         {/* Progress */}
         <div className="flex gap-1 px-3 pt-3">
-          {visibleSteps.map((_, i) => (
+          {readySteps.map((_, i) => (
             <div
               key={i}
               className={`h-1 flex-1 rounded-full transition-all duration-300 ${
@@ -285,7 +342,7 @@ export function OnboardingTour() {
           </Button>
 
           <span className="text-[10px] text-muted-foreground">
-            {currentStep + 1} / {visibleSteps.length}
+            {currentStep + 1} / {readySteps.length}
           </span>
 
           <Button

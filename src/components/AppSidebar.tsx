@@ -152,6 +152,7 @@ export function AppSidebar() {
                 <button
                   onClick={() => setShowAdd(true)}
                   className="p-0.5 rounded hover:bg-sidebar-accent/50 transition-colors"
+                  data-tour="add-workspace"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
@@ -163,6 +164,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => setActiveWorkspace('backlog')}
+                    data-tour="backlog"
                     className={`gap-3 rounded-lg transition-colors ${
                       activeWorkspace === 'backlog'
                         ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
@@ -214,6 +216,7 @@ export function AppSidebar() {
                               }}
                               className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
                               title="הזמנה למרחב"
+                              data-tour="invite-link"
                             >
                               <Link2 className="h-3 w-3" />
                             </button>
@@ -298,6 +301,7 @@ export function AppSidebar() {
                 size="sm"
                 onClick={() => setShowCreateGroup(true)}
                 className="w-full gap-1.5 text-xs"
+                data-tour="create-group"
               >
                 <FolderPlus className="h-3.5 w-3.5" />
                 קבוצה חדשה
