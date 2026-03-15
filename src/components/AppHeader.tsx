@@ -108,7 +108,7 @@ export function AppHeader() {
 
         <div className="flex items-center gap-1">
 
-          <div className="flex items-center rounded-lg border border-border p-0.5">
+          <div className="flex items-center rounded-lg border border-border p-0.5" data-tour="view-toggle">
             <Button
               variant={viewMode === 'list' ? 'secondary' : 'ghost'}
               size="icon"
