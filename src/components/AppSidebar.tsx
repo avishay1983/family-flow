@@ -103,7 +103,7 @@ export function AppSidebar() {
   const getTaskCount = (wsId: string) =>
     tasks.filter((t) => t.workspaceId === wsId && !t.completed).length;
 
-  const backlogCount = tasks.filter((t) => t.isBacklog && !t.completed).length;
+  const backlogCount = tasks.filter((t) => t.isBacklog && !t.completed && (!currentUser || t.assigneeIds.includes(currentUser))).length;
 
   const toggleMember = (name: string) => {
     setSelectedMembers(prev => 
