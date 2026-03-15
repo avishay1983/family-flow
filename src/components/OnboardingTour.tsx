@@ -311,34 +311,45 @@ export function OnboardingTour() {
         />
       </svg>
 
-      {/* Spotlight ring + pulse effect */}
+      {/* Spotlight ring + animated glow */}
       {spotlightRect && (
         <>
-          {/* Pulsing glow */}
+          {/* Breathing glow - golden/amber */}
           <div
-            className="absolute rounded-xl pointer-events-none animate-pulse"
+            className="absolute rounded-xl pointer-events-none"
             style={{
-              top: spotlightRect.top - PADDING - 4,
-              left: spotlightRect.left - PADDING - 4,
-              width: spotlightRect.width + PADDING * 2 + 8,
-              height: spotlightRect.height + PADDING * 2 + 8,
-              boxShadow: '0 0 20px 6px hsl(var(--primary) / 0.4)',
-              borderRadius: '12px',
+              top: spotlightRect.top - PADDING - 6,
+              left: spotlightRect.left - PADDING - 6,
+              width: spotlightRect.width + PADDING * 2 + 12,
+              height: spotlightRect.height + PADDING * 2 + 12,
+              borderRadius: '14px',
+              background: 'transparent',
+              boxShadow: '0 0 24px 8px hsl(45 100% 55% / 0.45), 0 0 48px 16px hsl(45 100% 55% / 0.15)',
+              animation: 'spotlight-breathe 2s ease-in-out infinite',
             }}
           />
           {/* Solid border ring */}
           <div
-            className="absolute rounded-xl pointer-events-none transition-all duration-300 border-2 border-primary bg-background/80"
+            className="absolute rounded-xl pointer-events-none transition-all duration-300 bg-background/90"
             style={{
               top: spotlightRect.top - PADDING,
               left: spotlightRect.left - PADDING,
               width: spotlightRect.width + PADDING * 2,
               height: spotlightRect.height + PADDING * 2,
-              boxShadow: '0 0 0 3px hsl(var(--primary) / 0.25), inset 0 0 8px hsl(var(--primary) / 0.1)',
+              border: '2px solid hsl(45 100% 55%)',
+              boxShadow: '0 0 0 3px hsl(45 100% 55% / 0.2), inset 0 0 12px hsl(45 100% 55% / 0.08)',
             }}
           />
         </>
       )}
+
+      {/* Keyframes for breathing animation */}
+      <style>{`
+        @keyframes spotlight-breathe {
+          0%, 100% { opacity: 0.7; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.04); }
+        }
+      `}</style>
 
       {/* Tooltip */}
       <div
