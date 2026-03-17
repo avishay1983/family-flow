@@ -39,19 +39,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { RecurringTaskDialog } from './RecurringTaskDialog';
-import { EditTaskModal } from './EditTaskModal';
-import { SwipeableTask } from './SwipeableTask';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const priorityStyles: Record<Priority, string> = {
   high: 'bg-destructive/10 text-destructive border-destructive/20',
