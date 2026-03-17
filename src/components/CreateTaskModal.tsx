@@ -145,7 +145,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-lg" dir="rtl">
         <DialogHeader>
-         <DialogTitle className="text-lg">{isBacklogMode ? 'משימה חדשה ל-Backlog' : 'משימה חדשה'}</DialogTitle>
+         <DialogTitle className="text-lg">{isBacklogMode ? 'משימה חדשה למחסן' : 'משימה חדשה'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 mt-2 max-h-[70vh] overflow-y-auto px-1">
@@ -330,7 +330,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
           )}
 
           <Button onClick={handleSubmit} className="w-full" disabled={!title.trim()}>
-            {isBacklogMode ? 'הוסף ל-Backlog' : 'צור משימה'}
+            {isBacklogMode ? 'הוסף למחסן' : 'צור משימה'}
           </Button>
         </div>
       </DialogContent>

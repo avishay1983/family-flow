@@ -39,7 +39,7 @@ const Index = () => {
     toast.success('המשימות עודכנו');
   }, [loadFromDB]);
 
-  const workspaceLabel = ws ? `${ws.icon} ${ws.name}` : isBacklog ? 'Backlog' : '';
+  const workspaceLabel = ws ? `${ws.icon} ${ws.name}` : isBacklog ? 'מחסן משימות' : '';
 
   return (
     <SidebarProvider>
@@ -52,7 +52,7 @@ const Index = () => {
               {isBacklog ? (
                 <div className="mb-6 flex items-start justify-between" dir="rtl">
                   <div>
-                    <h1 className="text-xl font-bold">📋 Backlog</h1>
+                    <h1 className="text-xl font-bold">📋 מחסן משימות</h1>
                     <p className="text-sm text-muted-foreground mt-0.5">
                       משימות לתכנון עתידי — קשר אותן למרחב עבודה כשתהיה מוכן
                     </p>

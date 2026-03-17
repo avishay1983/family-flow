@@ -33,7 +33,7 @@ export function MoveTaskDialog({ task, onClose }: Props) {
       workspaceId: '',
       isBacklog: true,
     });
-    toast.success('המשימה הועברה ל-Backlog');
+    toast.success('המשימה הועברה למחסן משימות');
     onClose();
   };
 
@@ -62,7 +62,7 @@ export function MoveTaskDialog({ task, onClose }: Props) {
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-accent transition-colors text-right border-t border-border mt-2 pt-3"
             >
               <span className="text-lg">📋</span>
-              <span className="font-medium">Backlog</span>
+              <span className="font-medium">מחסן משימות</span>
             </button>
           )}
         </div>
