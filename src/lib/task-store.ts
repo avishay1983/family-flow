@@ -61,6 +61,7 @@ function dbToTask(row: any): Task {
     createdAt: row.created_at,
     completed: row.completed,
     isBacklog: row.is_backlog || false,
+    position: row.position ?? 0,
   };
 }
 
