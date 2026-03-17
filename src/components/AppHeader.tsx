@@ -49,7 +49,7 @@ export function AppHeader() {
                 {isBacklog ? (
                   <>
                     <span className="text-sm">📋</span>
-                    <span className="max-w-[100px] truncate">Backlog</span>
+                    <span className="max-w-[100px] truncate">מחסן משימות</span>
                   </>
                 ) : ws ? (
                   <>
