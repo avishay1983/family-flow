@@ -33,7 +33,7 @@ export function MoveTaskDialog({ task, onClose }: Props) {
       workspaceId: '',
       isBacklog: true,
     });
-    toast.success('המשימה הועברה ל-Backlog');
+    toast.success('המשימה הועברה למחסן משימות');
     onClose();
   };
 
