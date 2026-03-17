@@ -5,8 +5,9 @@ import { Task, TaskStatus, Priority } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { format, isPast, isToday } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2, Pencil } from 'lucide-react';
+import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2, Pencil, ArrowRightLeft } from 'lucide-react';
 import { RecurringTaskDialog } from './RecurringTaskDialog';
+import { MoveTaskDialog } from './MoveTaskDialog';
 import { EditTaskModal } from './EditTaskModal';
 import { motion } from 'framer-motion';
 import {
@@ -37,6 +38,7 @@ export function KanbanView() {
   const { getFilteredTasks, updateTaskStatus, deleteTask, workspaces } = useTaskStore();
   const [recurringTask, setRecurringTask] = useState<Task | null>(null);
   const [editTask, setEditTask] = useState<Task | null>(null);
+  const [moveToWsTask, setMoveToWsTask] = useState<Task | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [activeCol, setActiveCol] = useState(0);
@@ -169,6 +171,13 @@ export function KanbanView() {
                         )}
                         <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
                           <button
+                            onClick={(e) => { e.stopPropagation(); setMoveToWsTask(task); }}
+                            className="p-1 rounded hover:bg-accent transition-all text-muted-foreground hover:text-foreground md:opacity-0 md:group-hover:opacity-100"
+                            title="העבר למרחב אחר"
+                          >
+                            <ArrowRightLeft className="h-3.5 w-3.5" />
+                          </button>
+                          <button
                             onClick={(e) => { e.stopPropagation(); setEditTask(task); }}
                             className="p-1 rounded hover:bg-accent transition-all text-muted-foreground hover:text-foreground md:opacity-0 md:group-hover:opacity-100"
                             title="ערוך משימה"
@@ -283,6 +292,7 @@ export function KanbanView() {
 
       <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
       <EditTaskModal task={editTask} onClose={() => setEditTask(null)} />
+      <MoveTaskDialog task={moveToWsTask} onClose={() => setMoveToWsTask(null)} />
     </>
   );
 }

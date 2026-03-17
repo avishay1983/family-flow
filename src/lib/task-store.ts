@@ -28,6 +28,7 @@ interface TaskStore {
   deleteAllTasks: () => void;
   toggleComplete: (id: string) => void;
   updateTaskStatus: (id: string, status: TaskStatus) => void;
+  reorderTasks: (taskIds: string[]) => void;
 
   addWorkspace: (workspace: Workspace) => void;
   deleteWorkspace: (id: string) => void;
@@ -61,6 +62,7 @@ function dbToTask(row: any): Task {
     createdAt: row.created_at,
     completed: row.completed,
     isBacklog: row.is_backlog || false,
+    position: row.position ?? 0,
   };
 }
 
@@ -214,6 +216,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       completed: task.completed,
       created_at: task.createdAt,
       is_backlog: task.isBacklog || false,
+      position: task.position ?? 0,
     }).then(({ error }) => {
       if (error) console.error('Error adding task:', error);
     });
@@ -351,6 +354,23 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
     }));
     supabase.from('tasks').update({ status, completed: status === 'done' }).eq('id', id).then(({ error }) => {
       if (error) console.error('Error updating task status:', error);
+    });
+  },
+
+  reorderTasks: (taskIds: string[]) => {
+    set((s) => {
+      const updated = [...s.tasks];
+      taskIds.forEach((id, index) => {
+        const t = updated.find((t) => t.id === id);
+        if (t) t.position = index;
+      });
+      return { tasks: updated };
+    });
+    // Batch update positions in DB
+    taskIds.forEach((id, index) => {
+      supabase.from('tasks').update({ position: index }).eq('id', id).then(({ error }) => {
+        if (error) console.error('Error updating task position:', error);
+      });
     });
   },
 
