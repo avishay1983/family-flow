@@ -292,6 +292,7 @@ export function KanbanView() {
 
       <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
       <EditTaskModal task={editTask} onClose={() => setEditTask(null)} />
+      <MoveTaskDialog task={moveToWsTask} onClose={() => setMoveToWsTask(null)} />
     </>
   );
 }
