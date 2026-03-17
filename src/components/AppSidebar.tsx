@@ -174,7 +174,7 @@ export function AppSidebar() {
                     <Archive className="h-4 w-4 shrink-0" />
                     {!collapsed && (
                       <div className="flex flex-1 items-center justify-between">
-                        <span>Backlog</span>
+                        <span>מחסן משימות</span>
                         <span className="text-xs text-muted-foreground">{backlogCount}</span>
                       </div>
                     )}

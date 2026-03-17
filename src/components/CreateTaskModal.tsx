@@ -330,7 +330,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
           )}
 
           <Button onClick={handleSubmit} className="w-full" disabled={!title.trim()}>
-            {isBacklogMode ? 'הוסף ל-Backlog' : 'צור משימה'}
+            {isBacklogMode ? 'הוסף למחסן' : 'צור משימה'}
           </Button>
         </div>
       </DialogContent>

@@ -66,7 +66,7 @@ export function AppHeader() {
                 className={`gap-2 ${isBacklog ? 'bg-accent font-medium' : ''}`}
               >
                 <span className="text-sm">📋</span>
-                <span>Backlog</span>
+                <span>מחסן משימות</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {workspaces.map((w) => (
