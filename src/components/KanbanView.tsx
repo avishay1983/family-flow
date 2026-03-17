@@ -5,8 +5,9 @@ import { Task, TaskStatus, Priority } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { format, isPast, isToday } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2, Pencil } from 'lucide-react';
+import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2, Pencil, ArrowRightLeft } from 'lucide-react';
 import { RecurringTaskDialog } from './RecurringTaskDialog';
+import { MoveTaskDialog } from './MoveTaskDialog';
 import { EditTaskModal } from './EditTaskModal';
 import { motion } from 'framer-motion';
 import {
