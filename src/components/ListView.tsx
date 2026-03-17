@@ -6,8 +6,39 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, isPast, isToday, isYesterday, isTomorrow, parseISO, startOfWeek, endOfWeek, isWithinInterval, isBefore } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, Clock, User, AlertCircle, Trash2, Pencil } from 'lucide-react';
+import { Calendar, Clock, User, AlertCircle, Trash2, Pencil, ArrowRightLeft, GripVertical } from 'lucide-react';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { RecurringTaskDialog } from './RecurringTaskDialog';
+import { EditTaskModal } from './EditTaskModal';
+import { MoveTaskDialog } from './MoveTaskDialog';
+import { SwipeableTask } from './SwipeableTask';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
