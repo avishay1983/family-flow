@@ -369,6 +369,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
     taskIds.forEach((id, index) => {
       supabase.from('tasks').update({ position: index }).eq('id', id).then(({ error }) => {
         if (error) console.error('Error updating task position:', error);
+      });
     });
   },
 
