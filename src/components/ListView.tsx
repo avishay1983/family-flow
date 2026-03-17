@@ -161,7 +161,7 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
           <div
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing shrink-0 touch-none hidden md:block"
+            className="cursor-grab active:cursor-grabbing shrink-0 touch-none"
           >
             <GripVertical className="h-4 w-4 text-muted-foreground/40" />
           </div>
