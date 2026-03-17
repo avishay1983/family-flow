@@ -42,6 +42,7 @@ export interface Task {
   createdAt: string;
   completed: boolean;
   isBacklog?: boolean;
+  position?: number;
 }
 
 export interface Notification {
