@@ -39,7 +39,7 @@ const Index = () => {
     toast.success('המשימות עודכנו');
   }, [loadFromDB]);
 
-  const workspaceLabel = ws ? `${ws.icon} ${ws.name}` : isBacklog ? 'Backlog' : '';
+  const workspaceLabel = ws ? `${ws.icon} ${ws.name}` : isBacklog ? 'מחסן משימות' : '';
 
   return (
     <SidebarProvider>
