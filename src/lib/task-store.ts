@@ -217,6 +217,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       created_at: task.createdAt,
       is_backlog: task.isBacklog || false,
       position: task.position ?? 0,
+    }).then(({ error }) => {
       if (error) console.error('Error adding task:', error);
     });
 
