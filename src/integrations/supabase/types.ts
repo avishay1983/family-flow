@@ -169,6 +169,7 @@ export type Database = {
           due_time: string | null
           id: string
           is_backlog: boolean
+          position: number
           priority: string
           reminder_before: string | null
           status: string
@@ -186,6 +187,7 @@ export type Database = {
           due_time?: string | null
           id?: string
           is_backlog?: boolean
+          position?: number
           priority?: string
           reminder_before?: string | null
           status?: string
@@ -203,6 +205,7 @@ export type Database = {
           due_time?: string | null
           id?: string
           is_backlog?: boolean
+          position?: number
           priority?: string
           reminder_before?: string | null
           status?: string
