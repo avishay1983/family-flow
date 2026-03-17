@@ -28,6 +28,7 @@ interface TaskStore {
   deleteAllTasks: () => void;
   toggleComplete: (id: string) => void;
   updateTaskStatus: (id: string, status: TaskStatus) => void;
+  reorderTasks: (taskIds: string[]) => void;
 
   addWorkspace: (workspace: Workspace) => void;
   deleteWorkspace: (id: string) => void;
