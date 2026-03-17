@@ -356,6 +356,22 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
     });
   },
 
+  reorderTasks: (taskIds: string[]) => {
+    set((s) => {
+      const updated = [...s.tasks];
+      taskIds.forEach((id, index) => {
+        const t = updated.find((t) => t.id === id);
+        if (t) t.position = index;
+      });
+      return { tasks: updated };
+    });
+    // Batch update positions in DB
+    taskIds.forEach((id, index) => {
+      supabase.from('tasks').update({ position: index }).eq('id', id).then(({ error }) => {
+        if (error) console.error('Error updating task position:', error);
+    });
+  },
+
   addWorkspace: (workspace) => {
     set((s) => ({ workspaces: [...s.workspaces, workspace] }));
     supabase.from('workspaces').insert({
