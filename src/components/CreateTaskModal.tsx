@@ -86,6 +86,12 @@ export function CreateTaskModal({ open, onClose }: Props) {
   const members = selectedWorkspace?.members || [];
 
   useEffect(() => {
+    if (open) {
+      setWorkspaceId(isBacklogMode ? '' : (activeWorkspace || workspaces[0]?.id || ''));
+    }
+  }, [open, activeWorkspace, isBacklogMode, workspaces]);
+
+  useEffect(() => {
     setAssigneeIds([]);
   }, [workspaceId]);
 
