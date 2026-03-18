@@ -43,9 +43,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 const priorityStyles: Record<Priority, string> = {
-  high: 'bg-destructive/10 text-destructive border-destructive/20',
-  medium: 'bg-warning/10 text-warning border-warning/20',
-  low: 'bg-success/10 text-success border-success/20',
+  high: 'bg-destructive/8 text-destructive border-destructive/15',
+  medium: 'bg-warning/8 text-warning border-warning/15',
+  low: 'bg-success/8 text-success border-success/15',
 };
 const priorityLabels: Record<Priority, string> = { high: 'גבוה', medium: 'בינוני', low: 'נמוך' };
 
@@ -154,9 +154,9 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
     <div ref={setNodeRef} style={style}>
       <SwipeableTask onDelete={() => onDelete(task.id)}>
         <div
-          className={`flex items-center gap-3 rounded-xl px-4 py-3 md:py-3 py-4 transition-colors hover:bg-accent/50 group ${
-            overdue ? 'bg-destructive/5 border border-destructive/10' : 'border border-transparent'
-          } ${task.completed ? 'opacity-60' : ''}`}
+          className={`flex items-center gap-3 rounded-2xl px-4 py-3 md:py-3 py-4 transition-all duration-200 hover:bg-accent/40 group border ${
+            overdue ? 'bg-destructive/4 border-destructive/10 hover:bg-destructive/8' : 'border-transparent hover:border-border/50'
+          } ${task.completed ? 'opacity-50' : ''}`}
         >
           {/* Drag handle */}
           <div
@@ -336,9 +336,9 @@ export function ListView() {
   };
 
   const sectionStyles: Record<string, { bg: string; border: string; text: string }> = {
-    'overdue': { bg: 'bg-destructive/5', border: 'border-destructive/30', text: 'text-destructive' },
-    'this-week': { bg: 'bg-primary/5', border: 'border-primary/30', text: 'text-primary' },
-    'future': { bg: 'bg-muted/50', border: 'border-border', text: 'text-muted-foreground' },
+    'overdue': { bg: 'bg-destructive/6', border: 'border-destructive/20', text: 'text-destructive' },
+    'this-week': { bg: 'bg-primary/6', border: 'border-primary/20', text: 'text-primary' },
+    'future': { bg: 'bg-muted/40', border: 'border-border/50', text: 'text-muted-foreground' },
   };
 
   const allTaskIds = tasks.map((t) => t.id);
@@ -352,7 +352,7 @@ export function ListView() {
               const style = sectionStyles[section.sectionType];
               return (
                 <div key={section.sectionType}>
-                  <div className={`flex items-center gap-2 py-2.5 px-3 mb-3 rounded-lg ${style.bg} border ${style.border}`}>
+                  <div className={`flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl ${style.bg} border ${style.border} backdrop-blur-sm`}>
                     <span className={`text-sm font-bold ${style.text}`}>
                       {section.sectionLabel}
                     </span>
@@ -366,7 +366,7 @@ export function ListView() {
                       const hasOverdue = dateTasks.some(isOverdue);
                       return (
                         <div key={dateKey}>
-                          <div className={`sticky top-0 z-10 flex items-center gap-2 py-1.5 px-1 mb-1 backdrop-blur-sm bg-background/80 border-b ${hasOverdue ? 'border-destructive/30' : 'border-border/50'}`}>
+                          <div className={`sticky top-0 z-10 flex items-center gap-2 py-1.5 px-2 mb-1 backdrop-blur-xl bg-background/70 border-b ${hasOverdue ? 'border-destructive/20' : 'border-border/30'} rounded-lg`}>
                             <span className={`text-xs font-semibold ${hasOverdue ? 'text-destructive' : 'text-foreground'}`}>
                               {label}
                             </span>

@@ -25,7 +25,6 @@ export function WorkspacePickerDialog() {
   const { workspaces, activeWorkspace, setActiveWorkspace, isLoading } = useTaskStore();
   const [onboardingDone, setOnboardingDone] = useState(() => localStorage.getItem(ONBOARDING_KEY) === 'true');
 
-  // Listen for onboarding completion
   useEffect(() => {
     if (onboardingDone) return;
     const check = () => setOnboardingDone(localStorage.getItem(ONBOARDING_KEY) === 'true');
@@ -39,12 +38,12 @@ export function WorkspacePickerDialog() {
     <Dialog open={open}>
       <DialogContent
         dir="rtl"
-        className="sm:max-w-sm [&>button]:hidden"
+        className="sm:max-w-sm [&>button]:hidden rounded-3xl border-border/40 bg-background/95 backdrop-blur-2xl shadow-2xl"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="text-center text-lg">בחר מרחב עבודה</DialogTitle>
+          <DialogTitle className="text-center text-lg font-bold">בחר מרחב עבודה</DialogTitle>
         </DialogHeader>
         <div className="grid gap-2 mt-2">
           {(() => {
@@ -52,18 +51,15 @@ export function WorkspacePickerDialog() {
             const ordered = getOrderedWorkspaces(workspaces);
             const visibleWs = ordered.filter(ws => !(appSettings.hiddenWorkspaceIds || []).includes(ws.id));
             
-            // Build combined list with backlog at its saved position
             const savedOrder = appSettings.workspaceOrder || [];
             const backlogIndex = savedOrder.indexOf('__backlog__');
             const showBacklog = !appSettings.hideBacklog;
             
-            // Map workspaces to render items
             type RenderItem = { type: 'workspace'; ws: typeof visibleWs[0] } | { type: 'backlog' };
             const items: RenderItem[] = visibleWs.map(ws => ({ type: 'workspace' as const, ws }));
             
             if (showBacklog) {
               if (backlogIndex >= 0) {
-                // Count how many visible workspaces come before backlog in saved order
                 let insertAt = 0;
                 for (let i = 0; i < backlogIndex; i++) {
                   if (savedOrder[i] !== '__backlog__' && visibleWs.some(w => w.id === savedOrder[i])) {
@@ -82,12 +78,12 @@ export function WorkspacePickerDialog() {
                   <button
                     key="backlog"
                     onClick={() => setActiveWorkspace('backlog')}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/50 hover:border-primary/30 transition-all text-right"
+                    className="flex items-center gap-3 p-3.5 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm hover:bg-accent/50 hover:border-primary/20 hover:shadow-md transition-all duration-200 text-right group"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-muted/60 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
                       <span className="text-2xl">📋</span>
                     </div>
-                    <span className="font-medium text-foreground">מחסן משימות</span>
+                    <span className="font-semibold text-foreground">מחסן משימות</span>
                   </button>
                 );
               }
@@ -95,12 +91,12 @@ export function WorkspacePickerDialog() {
                 <button
                   key={item.ws.id}
                   onClick={() => setActiveWorkspace(item.ws.id)}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/50 hover:border-primary/30 transition-all text-right"
+                  className="flex items-center gap-3 p-3.5 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm hover:bg-accent/50 hover:border-primary/20 hover:shadow-md transition-all duration-200 text-right group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-muted/60 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
                     <IconDisplay icon={item.ws.icon} />
                   </div>
-                  <span className="font-medium text-foreground">{item.ws.name}</span>
+                  <span className="font-semibold text-foreground">{item.ws.name}</span>
                 </button>
               );
             });

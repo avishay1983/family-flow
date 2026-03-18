@@ -47,7 +47,7 @@ const Index = () => {
         <AppSidebar />
         <SidebarInset className="flex h-svh min-h-0 flex-col overflow-hidden">
           <AppHeader />
-          <main className="flex-1 min-h-0 overflow-y-auto scroll-smooth-touch p-4 md:p-6">
+          <main className="flex-1 min-h-0 overflow-y-auto scroll-smooth-touch p-4 md:p-6" style={{ background: 'var(--gradient-surface)' }}>
             <PullToRefresh onRefresh={handleRefresh}>
               {isBacklog ? (
                 <div className="mb-6 flex items-start justify-between" dir="rtl">

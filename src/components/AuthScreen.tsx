@@ -77,7 +77,7 @@ export function AuthScreen() {
   return (
     <div className="min-h-svh flex" dir="rtl">
       {/* Left panel - Hero / Branding (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-primary">
+      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-gradient-to-br from-primary to-primary-glow">
         {/* Animated gradient blobs */}
         <div className="absolute inset-0">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-primary-foreground/10 blur-3xl -translate-y-1/2 translate-x-1/4 animate-pulse" />
@@ -153,7 +153,7 @@ export function AuthScreen() {
           {/* Google Sign In */}
           <Button
             variant="outline"
-            className="w-full h-12 gap-3 rounded-2xl text-sm font-medium border-border hover:bg-accent hover:border-primary/20 transition-all duration-300 hover:shadow-md"
+            className="w-full h-12 gap-3 rounded-2xl text-sm font-medium border-border/50 hover:bg-accent/50 hover:border-primary/20 transition-all duration-300 hover:shadow-md backdrop-blur-sm"
             onClick={handleGoogleLogin}
             disabled={loading}
           >
@@ -224,7 +224,7 @@ export function AuthScreen() {
           {/* Submit Button */}
           <Button
             onClick={handleEmailAuth}
-            className="w-full h-12 mt-6 rounded-2xl gap-2 text-sm font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full h-12 mt-6 rounded-2xl gap-2 text-sm font-bold bg-gradient-to-r from-primary to-primary-glow shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             disabled={loading}
           >
             {loading ? (
