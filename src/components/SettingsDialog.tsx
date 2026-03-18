@@ -17,11 +17,13 @@ const ONBOARDING_KEY = 'taskmaster_onboarding_done';
 export interface AppSettings {
   autoSelectWorkspace: boolean;
   defaultWorkspaceId: string; // '' = show dialog, workspace id or 'backlog'
+  defaultViewMode: 'list' | 'kanban' | '';
 }
 
 const defaultSettings: AppSettings = {
   autoSelectWorkspace: false,
   defaultWorkspaceId: '',
+  defaultViewMode: '',
 };
 
 export function getAppSettings(): AppSettings {
@@ -95,6 +97,26 @@ export function SettingsDialog({ open, onClose }: Props) {
                   </SelectItem>
                 ))}
                 <SelectItem value="backlog">📋 מחסן משימות</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Default view mode */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">תצוגה ברירת מחדל</Label>
+            <p className="text-xs text-muted-foreground">
+              בחר את סוג התצוגה שתוצג בכניסה לאפליקציה
+            </p>
+            <Select
+              value={settings.defaultViewMode || 'list'}
+              onValueChange={(v) => update({ defaultViewMode: v as 'list' | 'kanban' })}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="list">📋 רשימה</SelectItem>
+                <SelectItem value="kanban">📊 קנבן</SelectItem>
               </SelectContent>
             </Select>
           </div>
