@@ -77,7 +77,7 @@ export function AuthScreen() {
   return (
     <div className="min-h-svh flex" dir="rtl">
       {/* Left panel - Hero / Branding (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-primary">
+      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-gradient-to-br from-primary to-primary-glow">
         {/* Animated gradient blobs */}
         <div className="absolute inset-0">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-primary-foreground/10 blur-3xl -translate-y-1/2 translate-x-1/4 animate-pulse" />
