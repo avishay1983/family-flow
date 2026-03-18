@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTaskStore } from '@/lib/task-store';
+import { getOrderedWorkspaces } from '@/components/SettingsDialog';
 import {
   Dialog,
   DialogContent,
@@ -46,7 +47,7 @@ export function WorkspacePickerDialog() {
           <DialogTitle className="text-center text-lg">בחר מרחב עבודה</DialogTitle>
         </DialogHeader>
         <div className="grid gap-2 mt-2">
-          {workspaces.map((ws) => (
+          {getOrderedWorkspaces(workspaces).map((ws) => (
             <button
               key={ws.id}
               onClick={() => setActiveWorkspace(ws.id)}

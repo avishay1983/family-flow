@@ -6,7 +6,7 @@ import { WorkspaceMembersDialog } from './WorkspaceMembersDialog';
 import { InviteLinkDialog } from './InviteLinkDialog';
 import { CreateGroupDialog } from './CreateGroupDialog';
 import { EditGroupDialog } from './EditGroupDialog';
-import { SettingsDialog } from './SettingsDialog';
+import { SettingsDialog, getOrderedWorkspaces } from './SettingsDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { usePushStatus, PushStatus } from '@/hooks/usePushStatus';
 import shabbatIcon from '@/assets/shabbat-icon.png';
@@ -181,7 +181,7 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                {workspaces.filter(ws => !ws.groupId).map((ws) => (
+                {getOrderedWorkspaces(workspaces.filter(ws => !ws.groupId)).map((ws) => (
                   <SidebarMenuItem key={ws.id}>
                     <SidebarMenuButton
                       onClick={() => setActiveWorkspace(ws.id)}
