@@ -221,9 +221,9 @@ export function SettingsDialog({ open, onClose }: Props) {
 
           {/* Workspace order */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">סדר מרחבי העבודה</Label>
+            <Label className="text-sm font-medium">סדר והצגת מרחבי עבודה</Label>
             <p className="text-xs text-muted-foreground">
-              גרור כדי לשנות את סדר ההצגה בדיאלוג הבחירה ובסרגל הצד
+              גרור כדי לשנות סדר, וסמן אילו מרחבים יוצגו בדיאלוג הבחירה
             </p>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
@@ -231,7 +231,16 @@ export function SettingsDialog({ open, onClose }: Props) {
                   {orderedIds.map((id) => {
                     const ws = wsMap.get(id);
                     if (!ws) return null;
-                    return <SortableWorkspaceItem key={id} id={id} icon={ws.icon} name={ws.name} />;
+                    return (
+                      <SortableWorkspaceItem
+                        key={id}
+                        id={id}
+                        icon={ws.icon}
+                        name={ws.name}
+                        visible={!settings.hiddenWorkspaceIds?.includes(id)}
+                        onToggleVisibility={toggleWorkspaceVisibility}
+                      />
+                    );
                   })}
                 </div>
               </SortableContext>
