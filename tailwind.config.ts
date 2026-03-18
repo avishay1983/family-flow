@@ -95,7 +95,7 @@ export default {
           "100%": { opacity: "0", transform: "translateY(8px)" },
         },
         "scale-in": {
-          "0%": { transform: "scale(0.96)", opacity: "0" },
+          "0%": { transform: "scale(0.92)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
         "slide-in-right": {
