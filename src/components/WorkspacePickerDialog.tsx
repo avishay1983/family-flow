@@ -47,7 +47,7 @@ export function WorkspacePickerDialog() {
           <DialogTitle className="text-center text-lg">בחר מרחב עבודה</DialogTitle>
         </DialogHeader>
         <div className="grid gap-2 mt-2">
-          {getOrderedWorkspaces(workspaces).map((ws) => (
+          {getOrderedWorkspaces(workspaces).filter(ws => !(getAppSettings().hiddenWorkspaceIds || []).includes(ws.id)).map((ws) => (
             <button
               key={ws.id}
               onClick={() => setActiveWorkspace(ws.id)}
