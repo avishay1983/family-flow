@@ -191,12 +191,23 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       } catch {}
     }
     
-    set({
+      // Check default view mode setting
+      let defaultViewMode: 'list' | 'kanban' = 'list';
+      try {
+        const raw = localStorage.getItem('taskmaster_settings');
+        if (raw) {
+          const settings = JSON.parse(raw);
+          if (settings.defaultViewMode === 'kanban') defaultViewMode = 'kanban';
+        }
+      } catch {}
+
+      set({
       tasks: (tasksRes.data || []).map(dbToTask),
       workspaces: loadedWorkspaces,
       groups: loadedGroups,
       notifications: (notificationsRes.data || []).map(dbToNotification),
       activeWorkspace: nextActive,
+      viewMode: defaultViewMode,
       isLoading: false,
     });
   },
