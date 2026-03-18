@@ -227,6 +227,20 @@ export function SettingsDialog({ open, onClose }: Props) {
             </DndContext>
           </div>
 
+          {/* Theme */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">ערכת נושא</Label>
+            <Select value={theme || 'light'} onValueChange={setTheme}>
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="light">☀️ בהיר</SelectItem>
+                <SelectItem value="dark">🌙 כהה</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="border-t border-border pt-4">
             <Button
               variant="outline"
