@@ -188,130 +188,130 @@ export function SettingsDialog({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-sm" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            הגדרות
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-sm max-h-[85dvh] overflow-hidden p-0" dir="rtl">
+        <div className="flex h-full max-h-[85dvh] flex-col">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              הגדרות
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-6 mt-2">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">מרחב עבודה בפתיחת האפליקציה</Label>
-            <p className="text-xs text-muted-foreground">
-              בחר אם להציג דיאלוג בחירה או לפתוח מרחב עבודה ספציפי אוטומטית
-            </p>
-            <Select
-              value={settings.defaultWorkspaceId || 'dialog'}
-              onValueChange={(v) => update({ defaultWorkspaceId: v === 'dialog' ? '' : v })}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                <SelectItem value="dialog">הצג דיאלוג בחירה</SelectItem>
-                {workspaces.map((ws) => (
-                  <SelectItem key={ws.id} value={ws.id}>
-                    {ws.icon} {ws.name}
-                  </SelectItem>
-                ))}
-                <SelectItem value="backlog">📋 מחסן משימות</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex-1 overflow-y-auto px-6 pb-4">
+            <div className="mt-2 space-y-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">מרחב עבודה בפתיחת האפליקציה</Label>
+                <p className="text-xs text-muted-foreground">
+                  בחר אם להציג דיאלוג בחירה או לפתוח מרחב עבודה ספציפי אוטומטית
+                </p>
+                <Select
+                  value={settings.defaultWorkspaceId || 'dialog'}
+                  onValueChange={(v) => update({ defaultWorkspaceId: v === 'dialog' ? '' : v })}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent dir="rtl">
+                    <SelectItem value="dialog">הצג דיאלוג בחירה</SelectItem>
+                    {workspaces.map((ws) => (
+                      <SelectItem key={ws.id} value={ws.id}>
+                        {ws.icon} {ws.name}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="backlog">📋 מחסן משימות</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">תצוגה ברירת מחדל</Label>
+                <p className="text-xs text-muted-foreground">
+                  בחר את סוג התצוגה שתוצג בכניסה לאפליקציה
+                </p>
+                <Select
+                  value={settings.defaultViewMode || 'list'}
+                  onValueChange={(v) => update({ defaultViewMode: v as 'list' | 'kanban' })}
+                >
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent dir="rtl">
+                    <SelectItem value="list">📋 רשימה</SelectItem>
+                    <SelectItem value="kanban">📊 קנבן</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">סדר והצגת מרחבי עבודה</Label>
+                <p className="text-xs text-muted-foreground">
+                  גרור כדי לשנות סדר, וסמן אילו מרחבים יוצגו בדיאלוג הבחירה
+                </p>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-1">
+                      {orderedIds.map((id) => {
+                        if (id === '__backlog__') {
+                          return (
+                            <SortableWorkspaceItem
+                              key={id}
+                              id={id}
+                              icon="📋"
+                              name="מחסן משימות"
+                              visible={!settings.hideBacklog}
+                              onToggleVisibility={toggleWorkspaceVisibility}
+                            />
+                          );
+                        }
+                        const ws = wsMap.get(id);
+                        if (!ws) return null;
+                        return (
+                          <SortableWorkspaceItem
+                            key={id}
+                            id={id}
+                            icon={ws.icon}
+                            name={ws.name}
+                            visible={!settings.hiddenWorkspaceIds?.includes(id)}
+                            onToggleVisibility={toggleWorkspaceVisibility}
+                          />
+                        );
+                      })}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">ערכת נושא</Label>
+                <Select value={theme || 'light'} onValueChange={setTheme}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent dir="rtl">
+                    <SelectItem value="light">☀️ בהיר</SelectItem>
+                    <SelectItem value="dark">🌙 כהה</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetOnboarding}
+                  className="w-full gap-2"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  הצג שוב את סיור ההדרכה
+                </Button>
+              </div>
+            </div>
           </div>
 
-          {/* Default view mode */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">תצוגה ברירת מחדל</Label>
-            <p className="text-xs text-muted-foreground">
-              בחר את סוג התצוגה שתוצג בכניסה לאפליקציה
-            </p>
-            <Select
-              value={settings.defaultViewMode || 'list'}
-              onValueChange={(v) => update({ defaultViewMode: v as 'list' | 'kanban' })}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                <SelectItem value="list">📋 רשימה</SelectItem>
-                <SelectItem value="kanban">📊 קנבן</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Workspace order */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">סדר והצגת מרחבי עבודה</Label>
-            <p className="text-xs text-muted-foreground">
-              גרור כדי לשנות סדר, וסמן אילו מרחבים יוצגו בדיאלוג הבחירה
-            </p>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
-                <div className="space-y-1">
-                  {orderedIds.map((id) => {
-                    if (id === '__backlog__') {
-                      return (
-                        <SortableWorkspaceItem
-                          key={id}
-                          id={id}
-                          icon="📋"
-                          name="מחסן משימות"
-                          visible={!settings.hideBacklog}
-                          onToggleVisibility={toggleWorkspaceVisibility}
-                        />
-                      );
-                    }
-                    const ws = wsMap.get(id);
-                    if (!ws) return null;
-                    return (
-                      <SortableWorkspaceItem
-                        key={id}
-                        id={id}
-                        icon={ws.icon}
-                        name={ws.name}
-                        visible={!settings.hiddenWorkspaceIds?.includes(id)}
-                        onToggleVisibility={toggleWorkspaceVisibility}
-                      />
-                    );
-                  })}
-                </div>
-              </SortableContext>
-            </DndContext>
-          </div>
-
-          {/* Theme */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">ערכת נושא</Label>
-            <Select value={theme || 'light'} onValueChange={setTheme}>
-              <SelectTrigger className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent dir="rtl">
-                <SelectItem value="light">☀️ בהיר</SelectItem>
-                <SelectItem value="dark">🌙 כהה</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="border-t border-border pt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={resetOnboarding}
-              className="w-full gap-2"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              הצג שוב את סיור ההדרכה
-            </Button>
-          </div>
-
-          {/* Close button for mobile */}
-          <div className="border-t border-border pt-4">
+          <div className="border-t border-border bg-background px-6 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <Button
               variant="default"
-              className="w-full h-11 rounded-2xl font-bold"
+              className="h-11 w-full rounded-2xl font-bold"
               onClick={onClose}
             >
               סגור
