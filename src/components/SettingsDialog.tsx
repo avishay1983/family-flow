@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { useTaskStore } from '@/lib/task-store';
 import {
   Dialog,
@@ -109,6 +110,7 @@ function SortableWorkspaceItem({ id, icon, name }: { id: string; icon: string; n
 export function SettingsDialog({ open, onClose }: Props) {
   const [settings, setSettings] = useState<AppSettings>(getAppSettings);
   const { workspaces } = useTaskStore();
+  const { theme, setTheme } = useTheme();
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
 
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
@@ -224,6 +226,20 @@ export function SettingsDialog({ open, onClose }: Props) {
                 </div>
               </SortableContext>
             </DndContext>
+          </div>
+
+          {/* Theme */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">ערכת נושא</Label>
+            <Select value={theme || 'light'} onValueChange={setTheme}>
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="light">☀️ בהיר</SelectItem>
+                <SelectItem value="dark">🌙 כהה</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="border-t border-border pt-4">
