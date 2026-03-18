@@ -146,6 +146,12 @@ export function SettingsDialog({ open, onClose }: Props) {
     saveSettings(next);
   };
 
+  const toggleWorkspaceVisibility = (id: string) => {
+    const hidden = settings.hiddenWorkspaceIds || [];
+    const newHidden = hidden.includes(id) ? hidden.filter((h) => h !== id) : [...hidden, id];
+    update({ hiddenWorkspaceIds: newHidden });
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
