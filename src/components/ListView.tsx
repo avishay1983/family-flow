@@ -284,7 +284,7 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
 }
 
 export function ListView() {
-  const { getFilteredTasks, toggleComplete, deleteTask, workspaces, reorderTasks } = useTaskStore();
+  const { getFilteredTasks, toggleComplete, deleteTask, updateTask, workspaces, reorderTasks } = useTaskStore();
   const [recurringTask, setRecurringTask] = useState<Task | null>(null);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
@@ -313,6 +313,18 @@ export function ListView() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
+
+    const draggedTask = tasks.find((t) => t.id === active.id);
+    const targetTask = tasks.find((t) => t.id === over.id);
+    if (!draggedTask || !targetTask) return;
+
+    const draggedDateKey = draggedTask.dueDate?.split('T')[0] || '';
+    const targetDateKey = targetTask.dueDate?.split('T')[0] || '';
+
+    // If dropped on a different date group, update the due date
+    if (draggedDateKey !== targetDateKey && targetDateKey) {
+      updateTask(draggedTask.id, { dueDate: targetDateKey });
+    }
 
     const allTaskIds = tasks.map((t) => t.id);
     const oldIndex = allTaskIds.indexOf(active.id as string);
