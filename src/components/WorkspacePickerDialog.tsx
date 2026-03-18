@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTaskStore } from '@/lib/task-store';
+import { getOrderedWorkspaces } from '@/components/SettingsDialog';
 import {
   Dialog,
   DialogContent,
