@@ -135,7 +135,17 @@ export function SettingsDialog({ open, onClose }: Props) {
       const s = getAppSettings();
       setSettings(s);
       const ordered = getOrderedWorkspaces(workspaces);
-      setOrderedIds(ordered.map((w) => w.id));
+      const ids = ordered.map((w) => w.id);
+      // Insert backlog at its saved position, or at the end
+      const backlogId = '__backlog__';
+      const savedOrder = s.workspaceOrder || [];
+      const backlogIndex = savedOrder.indexOf(backlogId);
+      if (backlogIndex >= 0 && backlogIndex <= ids.length) {
+        ids.splice(backlogIndex, 0, backlogId);
+      } else {
+        ids.push(backlogId);
+      }
+      setOrderedIds(ids);
     }
   }, [open, workspaces]);
 
@@ -149,6 +159,10 @@ export function SettingsDialog({ open, onClose }: Props) {
   };
 
   const toggleWorkspaceVisibility = (id: string) => {
+    if (id === '__backlog__') {
+      update({ hideBacklog: !settings.hideBacklog });
+      return;
+    }
     const hidden = settings.hiddenWorkspaceIds || [];
     const newHidden = hidden.includes(id) ? hidden.filter((h) => h !== id) : [...hidden, id];
     update({ hiddenWorkspaceIds: newHidden });
@@ -237,6 +251,18 @@ export function SettingsDialog({ open, onClose }: Props) {
               <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
                 <div className="space-y-1">
                   {orderedIds.map((id) => {
+                    if (id === '__backlog__') {
+                      return (
+                        <SortableWorkspaceItem
+                          key={id}
+                          id={id}
+                          icon="📋"
+                          name="מחסן משימות"
+                          visible={!settings.hideBacklog}
+                          onToggleVisibility={toggleWorkspaceVisibility}
+                        />
+                      );
+                    }
                     const ws = wsMap.get(id);
                     if (!ws) return null;
                     return (
@@ -253,15 +279,6 @@ export function SettingsDialog({ open, onClose }: Props) {
                 </div>
               </SortableContext>
             </DndContext>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card mt-1">
-              <Checkbox
-                checked={!settings.hideBacklog}
-                onCheckedChange={() => update({ hideBacklog: !settings.hideBacklog })}
-                className="shrink-0 h-4 w-4"
-              />
-              <span className={`text-base ${settings.hideBacklog ? 'opacity-40' : ''}`}>📋</span>
-              <span className={`text-sm font-medium ${settings.hideBacklog ? 'opacity-40 text-muted-foreground' : 'text-foreground'}`}>מחסן משימות</span>
-            </div>
           </div>
 
           {/* Theme */}
