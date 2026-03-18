@@ -224,7 +224,7 @@ export function AuthScreen() {
           {/* Submit Button */}
           <Button
             onClick={handleEmailAuth}
-            className="w-full h-12 mt-6 rounded-2xl gap-2 text-sm font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full h-12 mt-6 rounded-2xl gap-2 text-sm font-bold bg-gradient-to-r from-primary to-primary-glow shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             disabled={loading}
           >
             {loading ? (
