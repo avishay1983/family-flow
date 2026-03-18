@@ -43,9 +43,9 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 const priorityStyles: Record<Priority, string> = {
-  high: 'bg-destructive/10 text-destructive border-destructive/20',
-  medium: 'bg-warning/10 text-warning border-warning/20',
-  low: 'bg-success/10 text-success border-success/20',
+  high: 'bg-destructive/8 text-destructive border-destructive/15',
+  medium: 'bg-warning/8 text-warning border-warning/15',
+  low: 'bg-success/8 text-success border-success/15',
 };
 const priorityLabels: Record<Priority, string> = { high: 'גבוה', medium: 'בינוני', low: 'נמוך' };
 
