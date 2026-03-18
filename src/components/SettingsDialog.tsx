@@ -37,7 +37,8 @@ export interface AppSettings {
   autoSelectWorkspace: boolean;
   defaultWorkspaceId: string;
   defaultViewMode: 'list' | 'kanban' | '';
-  workspaceOrder: string[]; // ordered workspace ids
+  workspaceOrder: string[];
+  hiddenWorkspaceIds: string[]; // workspaces hidden from picker dialog
 }
 
 const defaultSettings: AppSettings = {
@@ -45,6 +46,7 @@ const defaultSettings: AppSettings = {
   defaultWorkspaceId: '',
   defaultViewMode: '',
   workspaceOrder: [],
+  hiddenWorkspaceIds: [],
 };
 
 export function getAppSettings(): AppSettings {
