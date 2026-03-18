@@ -177,7 +177,14 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
         const raw = localStorage.getItem('taskmaster_settings');
         if (raw) {
           const settings = JSON.parse(raw);
-          if (settings.autoSelectWorkspace) {
+          if (settings.defaultWorkspaceId) {
+            const targetId = settings.defaultWorkspaceId;
+            if (targetId === 'backlog') {
+              nextActive = 'backlog';
+            } else if (loadedWorkspaces.some(w => w.id === targetId)) {
+              nextActive = targetId;
+            }
+          } else if (settings.autoSelectWorkspace) {
             nextActive = loadedWorkspaces[0].id;
           }
         }

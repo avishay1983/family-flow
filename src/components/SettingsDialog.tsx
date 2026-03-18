@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTaskStore } from '@/lib/task-store';
 import {
   Dialog,
   DialogContent,
@@ -6,8 +7,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings, RotateCcw } from 'lucide-react';
 
 const SETTINGS_KEY = 'taskmaster_settings';
@@ -15,10 +16,12 @@ const ONBOARDING_KEY = 'taskmaster_onboarding_done';
 
 export interface AppSettings {
   autoSelectWorkspace: boolean;
+  defaultWorkspaceId: string; // '' = show dialog, workspace id or 'backlog'
 }
 
 const defaultSettings: AppSettings = {
   autoSelectWorkspace: false,
+  defaultWorkspaceId: '',
 };
 
 export function getAppSettings(): AppSettings {
@@ -40,6 +43,7 @@ interface Props {
 
 export function SettingsDialog({ open, onClose }: Props) {
   const [settings, setSettings] = useState<AppSettings>(getAppSettings);
+  const { workspaces } = useTaskStore();
 
   useEffect(() => {
     if (open) setSettings(getAppSettings());
@@ -47,6 +51,9 @@ export function SettingsDialog({ open, onClose }: Props) {
 
   const update = (patch: Partial<AppSettings>) => {
     const next = { ...settings, ...patch };
+    if ('defaultWorkspaceId' in patch) {
+      next.autoSelectWorkspace = patch.defaultWorkspaceId !== '';
+    }
     setSettings(next);
     saveSettings(next);
   };
@@ -68,21 +75,30 @@ export function SettingsDialog({ open, onClose }: Props) {
         </DialogHeader>
 
         <div className="space-y-6 mt-2">
-          {/* Auto-select workspace */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="space-y-0.5 flex-1">
-              <Label className="text-sm font-medium">פתיחה אוטומטית של מרחב עבודה</Label>
-              <p className="text-xs text-muted-foreground">
-                בכניסה לאפליקציה, להיכנס ישר למרחב העבודה הראשון במקום מסך ריק
-              </p>
-            </div>
-            <Switch
-              checked={settings.autoSelectWorkspace}
-              onCheckedChange={(v) => update({ autoSelectWorkspace: v })}
-            />
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">מרחב עבודה בפתיחת האפליקציה</Label>
+            <p className="text-xs text-muted-foreground">
+              בחר אם להציג דיאלוג בחירה או לפתוח מרחב עבודה ספציפי אוטומטית
+            </p>
+            <Select
+              value={settings.defaultWorkspaceId || 'dialog'}
+              onValueChange={(v) => update({ defaultWorkspaceId: v === 'dialog' ? '' : v })}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="dialog">הצג דיאלוג בחירה</SelectItem>
+                {workspaces.map((ws) => (
+                  <SelectItem key={ws.id} value={ws.id}>
+                    {ws.icon} {ws.name}
+                  </SelectItem>
+                ))}
+                <SelectItem value="backlog">📋 מחסן משימות</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Reset onboarding */}
           <div className="border-t border-border pt-4">
             <Button
               variant="outline"
