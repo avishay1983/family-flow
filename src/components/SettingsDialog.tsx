@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { useTaskStore } from '@/lib/task-store';
 import {
   Dialog,
