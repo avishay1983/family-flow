@@ -87,7 +87,7 @@ function groupTasksByWeek(tasks: Task[]): WeekSection[] {
       continue;
     }
 
-    if (isPast(date) && !isToday(date)) {
+    if (isPast(date) && !isToday(date) && !task.completed) {
       if (!overdue[key]) overdue[key] = [];
       overdue[key].push(task);
     } else if (isWithinInterval(date, { start: weekStart, end: weekEnd })) {
