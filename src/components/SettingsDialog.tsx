@@ -49,6 +49,7 @@ const defaultSettings: AppSettings = {
   defaultViewMode: '',
   workspaceOrder: [],
   hiddenWorkspaceIds: [],
+  hideBacklog: false,
 };
 
 export function getAppSettings(): AppSettings {
