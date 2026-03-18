@@ -366,7 +366,7 @@ export function ListView() {
                       const hasOverdue = dateTasks.some(isOverdue);
                       return (
                         <div key={dateKey}>
-                          <div className={`sticky top-0 z-10 flex items-center gap-2 py-1.5 px-1 mb-1 backdrop-blur-sm bg-background/80 border-b ${hasOverdue ? 'border-destructive/30' : 'border-border/50'}`}>
+                          <div className={`sticky top-0 z-10 flex items-center gap-2 py-1.5 px-2 mb-1 backdrop-blur-xl bg-background/70 border-b ${hasOverdue ? 'border-destructive/20' : 'border-border/30'} rounded-lg`}>
                             <span className={`text-xs font-semibold ${hasOverdue ? 'text-destructive' : 'text-foreground'}`}>
                               {label}
                             </span>
