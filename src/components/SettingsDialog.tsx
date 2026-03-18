@@ -110,6 +110,7 @@ function SortableWorkspaceItem({ id, icon, name }: { id: string; icon: string; n
 export function SettingsDialog({ open, onClose }: Props) {
   const [settings, setSettings] = useState<AppSettings>(getAppSettings);
   const { workspaces } = useTaskStore();
+  const { theme, setTheme } = useTheme();
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
 
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
