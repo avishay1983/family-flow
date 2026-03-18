@@ -312,7 +312,7 @@ export function SettingsDialog({ open, onClose }: Props) {
             <Button
               variant="default"
               className="w-full h-11 rounded-2xl font-bold"
-              onClick={() => onOpenChange(false)}
+              onClick={onClose}
             >
               סגור
             </Button>
