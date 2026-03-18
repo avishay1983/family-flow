@@ -306,6 +306,17 @@ export function SettingsDialog({ open, onClose }: Props) {
               הצג שוב את סיור ההדרכה
             </Button>
           </div>
+
+          {/* Close button for mobile */}
+          <div className="border-t border-border pt-4">
+            <Button
+              variant="default"
+              className="w-full h-11 rounded-2xl font-bold"
+              onClick={() => onOpenChange(false)}
+            >
+              סגור
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
