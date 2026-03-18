@@ -86,7 +86,9 @@ interface Props {
   onClose: () => void;
 }
 
-function SortableWorkspaceItem({ id, icon, name }: { id: string; icon: string; name: string }) {
+function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: { 
+  id: string; icon: string; name: string; visible: boolean; onToggleVisibility: (id: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -104,8 +106,13 @@ function SortableWorkspaceItem({ id, icon, name }: { id: string; icon: string; n
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none shrink-0">
         <GripVertical className="h-4 w-4 text-muted-foreground/50" />
       </div>
-      <span className="text-base">{icon}</span>
-      <span className="text-sm font-medium text-foreground">{name}</span>
+      <Checkbox
+        checked={visible}
+        onCheckedChange={() => onToggleVisibility(id)}
+        className="shrink-0 h-4 w-4"
+      />
+      <span className={`text-base ${!visible ? 'opacity-40' : ''}`}>{icon}</span>
+      <span className={`text-sm font-medium ${!visible ? 'opacity-40 text-muted-foreground' : 'text-foreground'}`}>{name}</span>
     </div>
   );
 }
