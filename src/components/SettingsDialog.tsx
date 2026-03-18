@@ -17,11 +17,13 @@ const ONBOARDING_KEY = 'taskmaster_onboarding_done';
 export interface AppSettings {
   autoSelectWorkspace: boolean;
   defaultWorkspaceId: string; // '' = show dialog, workspace id or 'backlog'
+  defaultViewMode: 'list' | 'kanban' | '';
 }
 
 const defaultSettings: AppSettings = {
   autoSelectWorkspace: false,
   defaultWorkspaceId: '',
+  defaultViewMode: '',
 };
 
 export function getAppSettings(): AppSettings {
