@@ -101,6 +101,26 @@ export function SettingsDialog({ open, onClose }: Props) {
             </Select>
           </div>
 
+          {/* Default view mode */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">תצוגה ברירת מחדל</Label>
+            <p className="text-xs text-muted-foreground">
+              בחר את סוג התצוגה שתוצג בכניסה לאפליקציה
+            </p>
+            <Select
+              value={settings.defaultViewMode || 'list'}
+              onValueChange={(v) => update({ defaultViewMode: v as 'list' | 'kanban' })}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent dir="rtl">
+                <SelectItem value="list">📋 רשימה</SelectItem>
+                <SelectItem value="kanban">📊 קנבן</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="border-t border-border pt-4">
             <Button
               variant="outline"
