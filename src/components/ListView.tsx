@@ -154,9 +154,9 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
     <div ref={setNodeRef} style={style}>
       <SwipeableTask onDelete={() => onDelete(task.id)}>
         <div
-          className={`flex items-center gap-3 rounded-xl px-4 py-3 md:py-3 py-4 transition-colors hover:bg-accent/50 group ${
-            overdue ? 'bg-destructive/5 border border-destructive/10' : 'border border-transparent'
-          } ${task.completed ? 'opacity-60' : ''}`}
+          className={`flex items-center gap-3 rounded-2xl px-4 py-3 md:py-3 py-4 transition-all duration-200 hover:bg-accent/40 group border ${
+            overdue ? 'bg-destructive/4 border-destructive/10 hover:bg-destructive/8' : 'border-transparent hover:border-border/50'
+          } ${task.completed ? 'opacity-50' : ''}`}
         >
           {/* Drag handle */}
           <div
