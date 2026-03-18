@@ -71,7 +71,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
   const isBacklogMode = activeWorkspace === 'backlog';
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [workspaceId, setWorkspaceId] = useState(isBacklogMode ? '' : (workspaces[0]?.id || ''));
+  const [workspaceId, setWorkspaceId] = useState(isBacklogMode ? '' : (activeWorkspace || workspaces[0]?.id || ''));
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
   const [priority, setPriority] = useState<Priority>('medium');
   const [dateMode, setDateMode] = useState<DateMode>('day');
@@ -84,6 +84,12 @@ export function CreateTaskModal({ open, onClose }: Props) {
 
   const selectedWorkspace = workspaces.find((w) => w.id === workspaceId);
   const members = selectedWorkspace?.members || [];
+
+  useEffect(() => {
+    if (open) {
+      setWorkspaceId(isBacklogMode ? '' : (activeWorkspace || workspaces[0]?.id || ''));
+    }
+  }, [open, activeWorkspace, isBacklogMode, workspaces]);
 
   useEffect(() => {
     setAssigneeIds([]);
