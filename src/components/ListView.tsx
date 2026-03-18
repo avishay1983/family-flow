@@ -185,6 +185,18 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
                 {task.title}
               </span>
               {overdue && <AlertCircle className="h-3.5 w-3.5 text-destructive shrink-0" />}
+              {task.description && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs text-right" dir="rtl">
+                      <p className="text-sm whitespace-pre-wrap">{task.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
             {task.description && (
               <p className="text-xs text-muted-foreground truncate mt-0.5 max-w-md">
