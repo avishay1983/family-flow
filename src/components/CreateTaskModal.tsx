@@ -149,12 +149,12 @@ export function CreateTaskModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-lg" dir="rtl">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-lg data-[state=open]:animate-scale-in data-[state=closed]:animate-fade-out" dir="rtl">
+        <DialogHeader className="animate-fade-in">
          <DialogTitle className="text-lg">{isBacklogMode ? 'משימה חדשה למחסן' : 'משימה חדשה'}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-2 max-h-[70vh] overflow-y-auto px-1">
+        <div className="space-y-4 mt-2 max-h-[70vh] overflow-y-auto px-1 animate-fade-in">
           <Input
             placeholder="שם המשימה"
             value={title}
