@@ -284,7 +284,7 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
 }
 
 export function ListView() {
-  const { getFilteredTasks, toggleComplete, deleteTask, workspaces, reorderTasks } = useTaskStore();
+  const { getFilteredTasks, toggleComplete, deleteTask, updateTask, workspaces, reorderTasks } = useTaskStore();
   const [recurringTask, setRecurringTask] = useState<Task | null>(null);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
