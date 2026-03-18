@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings, RotateCcw, GripVertical } from 'lucide-react';
 import {
@@ -37,7 +38,8 @@ export interface AppSettings {
   autoSelectWorkspace: boolean;
   defaultWorkspaceId: string;
   defaultViewMode: 'list' | 'kanban' | '';
-  workspaceOrder: string[]; // ordered workspace ids
+  workspaceOrder: string[];
+  hiddenWorkspaceIds: string[]; // workspaces hidden from picker dialog
 }
 
 const defaultSettings: AppSettings = {
@@ -45,6 +47,7 @@ const defaultSettings: AppSettings = {
   defaultWorkspaceId: '',
   defaultViewMode: '',
   workspaceOrder: [],
+  hiddenWorkspaceIds: [],
 };
 
 export function getAppSettings(): AppSettings {
@@ -83,7 +86,9 @@ interface Props {
   onClose: () => void;
 }
 
-function SortableWorkspaceItem({ id, icon, name }: { id: string; icon: string; name: string }) {
+function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: { 
+  id: string; icon: string; name: string; visible: boolean; onToggleVisibility: (id: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -101,8 +106,13 @@ function SortableWorkspaceItem({ id, icon, name }: { id: string; icon: string; n
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none shrink-0">
         <GripVertical className="h-4 w-4 text-muted-foreground/50" />
       </div>
-      <span className="text-base">{icon}</span>
-      <span className="text-sm font-medium text-foreground">{name}</span>
+      <Checkbox
+        checked={visible}
+        onCheckedChange={() => onToggleVisibility(id)}
+        className="shrink-0 h-4 w-4"
+      />
+      <span className={`text-base ${!visible ? 'opacity-40' : ''}`}>{icon}</span>
+      <span className={`text-sm font-medium ${!visible ? 'opacity-40 text-muted-foreground' : 'text-foreground'}`}>{name}</span>
     </div>
   );
 }
@@ -134,6 +144,12 @@ export function SettingsDialog({ open, onClose }: Props) {
     }
     setSettings(next);
     saveSettings(next);
+  };
+
+  const toggleWorkspaceVisibility = (id: string) => {
+    const hidden = settings.hiddenWorkspaceIds || [];
+    const newHidden = hidden.includes(id) ? hidden.filter((h) => h !== id) : [...hidden, id];
+    update({ hiddenWorkspaceIds: newHidden });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -211,9 +227,9 @@ export function SettingsDialog({ open, onClose }: Props) {
 
           {/* Workspace order */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">סדר מרחבי העבודה</Label>
+            <Label className="text-sm font-medium">סדר והצגת מרחבי עבודה</Label>
             <p className="text-xs text-muted-foreground">
-              גרור כדי לשנות את סדר ההצגה בדיאלוג הבחירה ובסרגל הצד
+              גרור כדי לשנות סדר, וסמן אילו מרחבים יוצגו בדיאלוג הבחירה
             </p>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
@@ -221,7 +237,16 @@ export function SettingsDialog({ open, onClose }: Props) {
                   {orderedIds.map((id) => {
                     const ws = wsMap.get(id);
                     if (!ws) return null;
-                    return <SortableWorkspaceItem key={id} id={id} icon={ws.icon} name={ws.name} />;
+                    return (
+                      <SortableWorkspaceItem
+                        key={id}
+                        id={id}
+                        icon={ws.icon}
+                        name={ws.name}
+                        visible={!settings.hiddenWorkspaceIds?.includes(id)}
+                        onToggleVisibility={toggleWorkspaceVisibility}
+                      />
+                    );
                   })}
                 </div>
               </SortableContext>
