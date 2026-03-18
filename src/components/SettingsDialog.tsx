@@ -9,21 +9,41 @@ import {
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, RotateCcw } from 'lucide-react';
+import { Settings, RotateCcw, GripVertical } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const SETTINGS_KEY = 'taskmaster_settings';
 const ONBOARDING_KEY = 'taskmaster_onboarding_done';
 
 export interface AppSettings {
   autoSelectWorkspace: boolean;
-  defaultWorkspaceId: string; // '' = show dialog, workspace id or 'backlog'
+  defaultWorkspaceId: string;
   defaultViewMode: 'list' | 'kanban' | '';
+  workspaceOrder: string[]; // ordered workspace ids
 }
 
 const defaultSettings: AppSettings = {
   autoSelectWorkspace: false,
   defaultWorkspaceId: '',
   defaultViewMode: '',
+  workspaceOrder: [],
 };
 
 export function getAppSettings(): AppSettings {
@@ -32,6 +52,25 @@ export function getAppSettings(): AppSettings {
     if (raw) return { ...defaultSettings, ...JSON.parse(raw) };
   } catch {}
   return defaultSettings;
+}
+
+export function getOrderedWorkspaces<T extends { id: string }>(workspaces: T[]): T[] {
+  const order = getAppSettings().workspaceOrder;
+  if (!order.length) return workspaces;
+  const map = new Map(workspaces.map((w) => [w.id, w]));
+  const ordered: T[] = [];
+  for (const id of order) {
+    const ws = map.get(id);
+    if (ws) {
+      ordered.push(ws);
+      map.delete(id);
+    }
+  }
+  // Append any new workspaces not in the saved order
+  for (const ws of map.values()) {
+    ordered.push(ws);
+  }
+  return ordered;
 }
 
 function saveSettings(settings: AppSettings) {
@@ -43,13 +82,48 @@ interface Props {
   onClose: () => void;
 }
 
+function SortableWorkspaceItem({ id, icon, name }: { id: string; icon: string; name: string }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card"
+    >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none shrink-0">
+        <GripVertical className="h-4 w-4 text-muted-foreground/50" />
+      </div>
+      <span className="text-base">{icon}</span>
+      <span className="text-sm font-medium text-foreground">{name}</span>
+    </div>
+  );
+}
+
 export function SettingsDialog({ open, onClose }: Props) {
   const [settings, setSettings] = useState<AppSettings>(getAppSettings);
   const { workspaces } = useTaskStore();
+  const [orderedIds, setOrderedIds] = useState<string[]>([]);
+
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } });
+  const keyboardSensor = useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates });
+  const sensors = useSensors(pointerSensor, touchSensor, keyboardSensor);
 
   useEffect(() => {
-    if (open) setSettings(getAppSettings());
-  }, [open]);
+    if (open) {
+      const s = getAppSettings();
+      setSettings(s);
+      const ordered = getOrderedWorkspaces(workspaces);
+      setOrderedIds(ordered.map((w) => w.id));
+    }
+  }, [open, workspaces]);
 
   const update = (patch: Partial<AppSettings>) => {
     const next = { ...settings, ...patch };
@@ -60,11 +134,23 @@ export function SettingsDialog({ open, onClose }: Props) {
     saveSettings(next);
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = orderedIds.indexOf(active.id as string);
+    const newIndex = orderedIds.indexOf(over.id as string);
+    const newOrder = arrayMove(orderedIds, oldIndex, newIndex);
+    setOrderedIds(newOrder);
+    update({ workspaceOrder: newOrder });
+  };
+
   const resetOnboarding = () => {
     localStorage.removeItem(ONBOARDING_KEY);
     onClose();
     window.location.reload();
   };
+
+  const wsMap = new Map(workspaces.map((w) => [w.id, w]));
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -119,6 +205,25 @@ export function SettingsDialog({ open, onClose }: Props) {
                 <SelectItem value="kanban">📊 קנבן</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Workspace order */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">סדר מרחבי העבודה</Label>
+            <p className="text-xs text-muted-foreground">
+              גרור כדי לשנות את סדר ההצגה בדיאלוג הבחירה ובסרגל הצד
+            </p>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
+                <div className="space-y-1">
+                  {orderedIds.map((id) => {
+                    const ws = wsMap.get(id);
+                    if (!ws) return null;
+                    return <SortableWorkspaceItem key={id} id={id} icon={ws.icon} name={ws.name} />;
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
           </div>
 
           <div className="border-t border-border pt-4">
