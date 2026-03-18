@@ -39,7 +39,8 @@ export interface AppSettings {
   defaultWorkspaceId: string;
   defaultViewMode: 'list' | 'kanban' | '';
   workspaceOrder: string[];
-  hiddenWorkspaceIds: string[]; // workspaces hidden from picker dialog
+  hiddenWorkspaceIds: string[];
+  hideBacklog: boolean;
 }
 
 const defaultSettings: AppSettings = {
