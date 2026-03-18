@@ -58,6 +58,15 @@ export function WorkspacePickerDialog() {
               <span className="font-medium text-foreground">{ws.name}</span>
             </button>
           ))}
+          <button
+            onClick={() => setActiveWorkspace('backlog')}
+            className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/50 hover:border-primary/30 transition-all text-right border-t-2 border-t-border mt-1"
+          >
+            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+              <span className="text-2xl">📋</span>
+            </div>
+            <span className="font-medium text-foreground">מחסן משימות</span>
+          </button>
         </div>
       </DialogContent>
     </Dialog>
