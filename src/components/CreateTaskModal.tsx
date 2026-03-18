@@ -134,7 +134,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
     setDescription('');
     setPriority('medium');
     setDateMode('day');
-    setDueDate('');
+    setDueDate(toLocalDateString(new Date()));
     setDueDay(null);
     setDueTime('');
     setTags([]);
