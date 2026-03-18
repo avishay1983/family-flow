@@ -352,7 +352,7 @@ export function ListView() {
               const style = sectionStyles[section.sectionType];
               return (
                 <div key={section.sectionType}>
-                  <div className={`flex items-center gap-2 py-2.5 px-3 mb-3 rounded-lg ${style.bg} border ${style.border}`}>
+                  <div className={`flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl ${style.bg} border ${style.border} backdrop-blur-sm`}>
                     <span className={`text-sm font-bold ${style.text}`}>
                       {section.sectionLabel}
                     </span>
