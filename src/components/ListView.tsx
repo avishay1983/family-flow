@@ -336,9 +336,9 @@ export function ListView() {
   };
 
   const sectionStyles: Record<string, { bg: string; border: string; text: string }> = {
-    'overdue': { bg: 'bg-destructive/5', border: 'border-destructive/30', text: 'text-destructive' },
-    'this-week': { bg: 'bg-primary/5', border: 'border-primary/30', text: 'text-primary' },
-    'future': { bg: 'bg-muted/50', border: 'border-border', text: 'text-muted-foreground' },
+    'overdue': { bg: 'bg-destructive/6', border: 'border-destructive/20', text: 'text-destructive' },
+    'this-week': { bg: 'bg-primary/6', border: 'border-primary/20', text: 'text-primary' },
+    'future': { bg: 'bg-muted/40', border: 'border-border/50', text: 'text-muted-foreground' },
   };
 
   const allTaskIds = tasks.map((t) => t.id);
