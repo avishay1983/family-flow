@@ -159,6 +159,10 @@ export function SettingsDialog({ open, onClose }: Props) {
   };
 
   const toggleWorkspaceVisibility = (id: string) => {
+    if (id === '__backlog__') {
+      update({ hideBacklog: !settings.hideBacklog });
+      return;
+    }
     const hidden = settings.hiddenWorkspaceIds || [];
     const newHidden = hidden.includes(id) ? hidden.filter((h) => h !== id) : [...hidden, id];
     update({ hiddenWorkspaceIds: newHidden });
