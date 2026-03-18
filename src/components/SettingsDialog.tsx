@@ -277,6 +277,8 @@ export function SettingsDialog({ open, onClose }: Props) {
                     );
                   })}
                 </div>
+              </SortableContext>
+            </DndContext>
           </div>
 
           {/* Theme */}
