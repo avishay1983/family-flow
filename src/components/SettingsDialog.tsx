@@ -135,7 +135,17 @@ export function SettingsDialog({ open, onClose }: Props) {
       const s = getAppSettings();
       setSettings(s);
       const ordered = getOrderedWorkspaces(workspaces);
-      setOrderedIds(ordered.map((w) => w.id));
+      const ids = ordered.map((w) => w.id);
+      // Insert backlog at its saved position, or at the end
+      const backlogId = '__backlog__';
+      const savedOrder = s.workspaceOrder || [];
+      const backlogIndex = savedOrder.indexOf(backlogId);
+      if (backlogIndex >= 0 && backlogIndex <= ids.length) {
+        ids.splice(backlogIndex, 0, backlogId);
+      } else {
+        ids.push(backlogId);
+      }
+      setOrderedIds(ids);
     }
   }, [open, workspaces]);
 
