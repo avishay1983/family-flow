@@ -251,6 +251,18 @@ export function SettingsDialog({ open, onClose }: Props) {
               <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
                 <div className="space-y-1">
                   {orderedIds.map((id) => {
+                    if (id === '__backlog__') {
+                      return (
+                        <SortableWorkspaceItem
+                          key={id}
+                          id={id}
+                          icon="📋"
+                          name="מחסן משימות"
+                          visible={!settings.hideBacklog}
+                          onToggleVisibility={toggleWorkspaceVisibility}
+                        />
+                      );
+                    }
                     const ws = wsMap.get(id);
                     if (!ws) return null;
                     return (
@@ -265,17 +277,6 @@ export function SettingsDialog({ open, onClose }: Props) {
                     );
                   })}
                 </div>
-              </SortableContext>
-            </DndContext>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card mt-1">
-              <Checkbox
-                checked={!settings.hideBacklog}
-                onCheckedChange={() => update({ hideBacklog: !settings.hideBacklog })}
-                className="shrink-0 h-4 w-4"
-              />
-              <span className={`text-base ${settings.hideBacklog ? 'opacity-40' : ''}`}>📋</span>
-              <span className={`text-sm font-medium ${settings.hideBacklog ? 'opacity-40 text-muted-foreground' : 'text-foreground'}`}>מחסן משימות</span>
-            </div>
           </div>
 
           {/* Theme */}
