@@ -153,7 +153,7 @@ export function AuthScreen() {
           {/* Google Sign In */}
           <Button
             variant="outline"
-            className="w-full h-12 gap-3 rounded-2xl text-sm font-medium border-border hover:bg-accent hover:border-primary/20 transition-all duration-300 hover:shadow-md"
+            className="w-full h-12 gap-3 rounded-2xl text-sm font-medium border-border/50 hover:bg-accent/50 hover:border-primary/20 transition-all duration-300 hover:shadow-md backdrop-blur-sm"
             onClick={handleGoogleLogin}
             disabled={loading}
           >
