@@ -3,8 +3,29 @@ import { useTaskStore } from '@/lib/task-store';
 import { Task, TaskStatus, Priority } from '@/lib/types';
 
 import { Badge } from '@/components/ui/badge';
-import { format, isPast, isToday } from 'date-fns';
+import { format, isPast, isToday, isValid } from 'date-fns';
 import { he } from 'date-fns/locale';
+
+function safeFormatDate(dateStr: string | undefined): string {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    if (!isValid(d)) return '—';
+    return format(d, 'dd/MM', { locale: he });
+  } catch {
+    return '—';
+  }
+}
+
+function safeIsOverdue(task: { completed: boolean; dueDate: string }): boolean {
+  if (task.completed || !task.dueDate) return false;
+  try {
+    const d = new Date(task.dueDate);
+    return isValid(d) && isPast(d) && !isToday(d);
+  } catch {
+    return false;
+  }
+}
 import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2, Pencil, ArrowRightLeft } from 'lucide-react';
 import { RecurringTaskDialog } from './RecurringTaskDialog';
 import { MoveTaskDialog } from './MoveTaskDialog';
@@ -68,8 +89,7 @@ export function KanbanView() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const isOverdue = (task: Task) =>
-    !task.completed && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
+  const isOverdue = (task: Task) => safeIsOverdue(task);
 
   const moveTask = (taskId: string, direction: 'next' | 'prev') => {
     const task = tasks.find((t) => t.id === taskId);
@@ -157,7 +177,7 @@ export function KanbanView() {
               <div className={`flex items-center gap-1 text-xs ${overdue ? 'text-destructive' : 'text-muted-foreground'}`}>
                 {overdue && <AlertCircle className="h-3 w-3" />}
                 <Calendar className="h-3 w-3" />
-                {format(new Date(task.dueDate), 'dd/MM', { locale: he })}
+                {safeFormatDate(task.dueDate)}
               </div>
 
               {ws && <span className="text-xs text-muted-foreground">{ws.icon}</span>}
