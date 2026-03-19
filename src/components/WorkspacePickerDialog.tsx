@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useTaskStore } from '@/lib/task-store';
-import { getOrderedWorkspaces, getAppSettings } from '@/components/SettingsDialog';
+import { getOrderedWorkspaces, getAppSettings, SettingsDialog } from '@/components/SettingsDialog';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Settings } from 'lucide-react';
 import shabbatIcon from '@/assets/shabbat-icon.png';
 
 const SPECIAL_ICONS: Record<string, string> = {
@@ -26,6 +26,7 @@ function IconDisplay({ icon }: { icon: string }) {
 export function WorkspacePickerDialog() {
   const { workspaces, activeWorkspace, setActiveWorkspace, isLoading } = useTaskStore();
   const { theme, setTheme } = useTheme();
+  const [showSettings, setShowSettings] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(() => localStorage.getItem(ONBOARDING_KEY) === 'true');
 
   useEffect(() => {
