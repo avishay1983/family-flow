@@ -207,6 +207,9 @@ export function SettingsDialog({ open, onClose }: Props) {
               <Settings className="h-5 w-5" />
               הגדרות
             </DialogTitle>
+            <DialogDescription className="text-right">
+              נהל תצוגת פתיחה, פריסת רשימה או קנבן, סדר מרחבי העבודה וערכת הנושא.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 pb-4">
