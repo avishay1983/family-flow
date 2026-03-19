@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useTaskStore } from '@/lib/task-store';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -88,9 +89,13 @@ interface Props {
   onClose: () => void;
 }
 
-function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: {
-  id: string; icon: string; name: string; visible: boolean; onToggleVisibility: (id: string) => void;
-}) {
+const SortableWorkspaceItem = React.forwardRef<HTMLDivElement, {
+  id: string;
+  icon: string;
+  name: string;
+  visible: boolean;
+  onToggleVisibility: (id: string) => void;
+}>(({ id, icon, name, visible, onToggleVisibility }, ref) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -101,7 +106,11 @@ function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: 
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      }}
       style={style}
       className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card"
     >
@@ -117,7 +126,9 @@ function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: 
       <span className={`text-sm font-medium ${!visible ? 'opacity-40 text-muted-foreground' : 'text-foreground'}`}>{name}</span>
     </div>
   );
-}
+});
+
+SortableWorkspaceItem.displayName = 'SortableWorkspaceItem';
 
 export function SettingsDialog({ open, onClose }: Props) {
   const [settings, setSettings] = useState<AppSettings>(getAppSettings);
@@ -196,6 +207,9 @@ export function SettingsDialog({ open, onClose }: Props) {
               <Settings className="h-5 w-5" />
               הגדרות
             </DialogTitle>
+            <DialogDescription className="text-right">
+              נהל תצוגת פתיחה, פריסת רשימה או קנבן, סדר מרחבי העבודה וערכת הנושא.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 pb-4">
@@ -262,18 +276,41 @@ export function SettingsDialog({ open, onClose }: Props) {
                 <p className="text-xs text-muted-foreground">
                   בחר את סוג התצוגה שתוצג בכניסה לאפליקציה
                 </p>
-                <Select
-                  value={settings.defaultViewMode || 'list'}
-                  onValueChange={(v) => update({ defaultViewMode: v as 'list' | 'kanban' })}
-                >
-                  <SelectTrigger className="h-9">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent dir="rtl">
-                    <SelectItem value="list">📋 רשימה</SelectItem>
-                    <SelectItem value="kanban">📊 קנבן</SelectItem>
-                  </SelectContent>
-                </Select>
+                {isMobile ? (
+                  <div className="space-y-2 rounded-md border border-border bg-card p-2">
+                    {[
+                      { value: 'list', label: '📋 רשימה' },
+                      { value: 'kanban', label: '📊 קנבן' },
+                    ].map((option) => {
+                      const isSelected = (settings.defaultViewMode || 'list') === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => update({ defaultViewMode: option.value as 'list' | 'kanban' })}
+                          className="flex w-full items-center justify-between rounded-md border border-border px-3 py-2 text-right transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          aria-pressed={isSelected}
+                        >
+                          <span className="text-sm text-foreground">{option.label}</span>
+                          <span className="text-xs text-muted-foreground">{isSelected ? 'נבחר' : ''}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <Select
+                    value={settings.defaultViewMode || 'list'}
+                    onValueChange={(v) => update({ defaultViewMode: v as 'list' | 'kanban' })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl">
+                      <SelectItem value="list">📋 רשימה</SelectItem>
+                      <SelectItem value="kanban">📊 קנבן</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div className="space-y-2">
