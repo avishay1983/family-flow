@@ -25,6 +25,7 @@ function IconDisplay({ icon }: { icon: string }) {
 
 export function WorkspacePickerDialog() {
   const { workspaces, activeWorkspace, setActiveWorkspace, isLoading } = useTaskStore();
+  const { theme, setTheme } = useTheme();
   const [onboardingDone, setOnboardingDone] = useState(() => localStorage.getItem(ONBOARDING_KEY) === 'true');
 
   useEffect(() => {
