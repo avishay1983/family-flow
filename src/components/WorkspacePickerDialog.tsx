@@ -47,8 +47,15 @@ export function WorkspacePickerDialog() {
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <DialogTitle className="text-center text-lg font-bold">בחר מרחב עבודה</DialogTitle>
+        <DialogHeader className="flex flex-row items-center justify-between">
+          <DialogTitle className="text-center text-lg font-bold flex-1">בחר מרחב עבודה</DialogTitle>
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2 rounded-xl bg-muted/60 hover:bg-muted transition-colors shrink-0"
+            aria-label="שנה ערכת נושא"
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5 text-foreground" /> : <Moon className="h-5 w-5 text-foreground" />}
+          </button>
         </DialogHeader>
         <div className="grid gap-2 mt-2">
           {(() => {
