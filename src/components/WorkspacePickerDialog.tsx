@@ -126,5 +126,7 @@ export function WorkspacePickerDialog() {
         </div>
       </DialogContent>
     </Dialog>
+    <SettingsDialog open={showSettings} onClose={() => setShowSettings(false)} />
+    </>
   );
 }
