@@ -177,7 +177,7 @@ export function KanbanView() {
               <div className={`flex items-center gap-1 text-xs ${overdue ? 'text-destructive' : 'text-muted-foreground'}`}>
                 {overdue && <AlertCircle className="h-3 w-3" />}
                 <Calendar className="h-3 w-3" />
-                {format(new Date(task.dueDate), 'dd/MM', { locale: he })}
+                {safeFormatDate(task.dueDate)}
               </div>
 
               {ws && <span className="text-xs text-muted-foreground">{ws.icon}</span>}
