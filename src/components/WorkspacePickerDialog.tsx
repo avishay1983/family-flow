@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { useTaskStore } from '@/lib/task-store';
 import { getOrderedWorkspaces, getAppSettings } from '@/components/SettingsDialog';
 import {
@@ -7,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Sun, Moon } from 'lucide-react';
 import shabbatIcon from '@/assets/shabbat-icon.png';
 
 const SPECIAL_ICONS: Record<string, string> = {
@@ -23,6 +25,7 @@ function IconDisplay({ icon }: { icon: string }) {
 
 export function WorkspacePickerDialog() {
   const { workspaces, activeWorkspace, setActiveWorkspace, isLoading } = useTaskStore();
+  const { theme, setTheme } = useTheme();
   const [onboardingDone, setOnboardingDone] = useState(() => localStorage.getItem(ONBOARDING_KEY) === 'true');
 
   useEffect(() => {
@@ -44,8 +47,15 @@ export function WorkspacePickerDialog() {
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <DialogTitle className="text-center text-lg font-bold">בחר מרחב עבודה</DialogTitle>
+        <DialogHeader className="flex flex-row items-center justify-between">
+          <DialogTitle className="text-center text-lg font-bold flex-1">בחר מרחב עבודה</DialogTitle>
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2 rounded-xl bg-muted/60 hover:bg-muted transition-colors shrink-0"
+            aria-label="שנה ערכת נושא"
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5 text-foreground" /> : <Moon className="h-5 w-5 text-foreground" />}
+          </button>
         </DialogHeader>
         <div className="grid gap-2 mt-2">
           {(() => {
