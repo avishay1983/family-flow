@@ -3,8 +3,29 @@ import { useTaskStore } from '@/lib/task-store';
 import { Task, TaskStatus, Priority } from '@/lib/types';
 
 import { Badge } from '@/components/ui/badge';
-import { format, isPast, isToday } from 'date-fns';
+import { format, isPast, isToday, isValid } from 'date-fns';
 import { he } from 'date-fns/locale';
+
+function safeFormatDate(dateStr: string | undefined): string {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    if (!isValid(d)) return '—';
+    return format(d, 'dd/MM', { locale: he });
+  } catch {
+    return '—';
+  }
+}
+
+function safeIsOverdue(task: { completed: boolean; dueDate: string }): boolean {
+  if (task.completed || !task.dueDate) return false;
+  try {
+    const d = new Date(task.dueDate);
+    return isValid(d) && isPast(d) && !isToday(d);
+  } catch {
+    return false;
+  }
+}
 import { Calendar, AlertCircle, GripVertical, ChevronLeft, ChevronRight, Trash2, Pencil, ArrowRightLeft } from 'lucide-react';
 import { RecurringTaskDialog } from './RecurringTaskDialog';
 import { MoveTaskDialog } from './MoveTaskDialog';
