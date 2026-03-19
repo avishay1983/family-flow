@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Settings, RotateCcw, GripVertical } from 'lucide-react';
 import {
   DndContext,
@@ -72,7 +73,6 @@ export function getOrderedWorkspaces<T extends { id: string }>(workspaces: T[]):
       map.delete(id);
     }
   }
-  // Append any new workspaces not in the saved order
   for (const ws of map.values()) {
     ordered.push(ws);
   }
@@ -88,7 +88,7 @@ interface Props {
   onClose: () => void;
 }
 
-function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: { 
+function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: {
   id: string; icon: string; name: string; visible: boolean; onToggleVisibility: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -124,6 +124,7 @@ export function SettingsDialog({ open, onClose }: Props) {
   const { workspaces } = useTaskStore();
   const { theme, setTheme } = useTheme();
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
+  const isMobile = useIsMobile();
 
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
   const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } });
@@ -136,7 +137,6 @@ export function SettingsDialog({ open, onClose }: Props) {
       setSettings(s);
       const ordered = getOrderedWorkspaces(workspaces);
       const ids = ordered.map((w) => w.id);
-      // Insert backlog at its saved position, or at the end
       const backlogId = '__backlog__';
       const savedOrder = s.workspaceOrder || [];
       const backlogIndex = savedOrder.indexOf(backlogId);
@@ -185,6 +185,7 @@ export function SettingsDialog({ open, onClose }: Props) {
   };
 
   const wsMap = new Map(workspaces.map((w) => [w.id, w]));
+  const selectedWorkspaceValue = settings.defaultWorkspaceId || 'dialog';
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -204,23 +205,40 @@ export function SettingsDialog({ open, onClose }: Props) {
                 <p className="text-xs text-muted-foreground">
                   בחר אם להציג דיאלוג בחירה או לפתוח מרחב עבודה ספציפי אוטומטית
                 </p>
-                <Select
-                  value={settings.defaultWorkspaceId || 'dialog'}
-                  onValueChange={(v) => update({ defaultWorkspaceId: v === 'dialog' ? '' : v })}
-                >
-                  <SelectTrigger className="h-9">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent dir="rtl">
-                    <SelectItem value="dialog">הצג דיאלוג בחירה</SelectItem>
+                {isMobile ? (
+                  <select
+                    dir="rtl"
+                    value={selectedWorkspaceValue}
+                    onChange={(e) => update({ defaultWorkspaceId: e.target.value === 'dialog' ? '' : e.target.value })}
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  >
+                    <option value="dialog">הצג דיאלוג בחירה</option>
                     {workspaces.map((ws) => (
-                      <SelectItem key={ws.id} value={ws.id}>
+                      <option key={ws.id} value={ws.id}>
                         {ws.icon} {ws.name}
-                      </SelectItem>
+                      </option>
                     ))}
-                    <SelectItem value="backlog">📋 מחסן משימות</SelectItem>
-                  </SelectContent>
-                </Select>
+                    <option value="backlog">📋 מחסן משימות</option>
+                  </select>
+                ) : (
+                  <Select
+                    value={selectedWorkspaceValue}
+                    onValueChange={(v) => update({ defaultWorkspaceId: v === 'dialog' ? '' : v })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl">
+                      <SelectItem value="dialog">הצג דיאלוג בחירה</SelectItem>
+                      {workspaces.map((ws) => (
+                        <SelectItem key={ws.id} value={ws.id}>
+                          {ws.icon} {ws.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="backlog">📋 מחסן משימות</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div className="space-y-2">
