@@ -35,7 +35,7 @@ export function WorkspacePickerDialog() {
   const open = !isLoading && workspaces.length > 0 && !activeWorkspace && onboardingDone;
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent
         dir="rtl"
         className="sm:max-w-sm [&>button]:hidden rounded-3xl border-border/40 bg-background/95 backdrop-blur-2xl shadow-2xl"
