@@ -50,13 +50,22 @@ export function WorkspacePickerDialog() {
       >
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-center text-lg font-bold flex-1">בחר מרחב עבודה</DialogTitle>
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 rounded-xl bg-muted/60 hover:bg-muted transition-colors shrink-0"
-            aria-label="שנה ערכת נושא"
-          >
-            {theme === 'dark' ? <Sun className="h-5 w-5 text-foreground" /> : <Moon className="h-5 w-5 text-foreground" />}
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={() => setShowSettings(true)}
+              className="p-2 rounded-xl bg-muted/60 hover:bg-muted transition-colors"
+              aria-label="הגדרות"
+            >
+              <Settings className="h-5 w-5 text-foreground" />
+            </button>
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2 rounded-xl bg-muted/60 hover:bg-muted transition-colors"
+              aria-label="שנה ערכת נושא"
+            >
+              {theme === 'dark' ? <Sun className="h-5 w-5 text-foreground" /> : <Moon className="h-5 w-5 text-foreground" />}
+            </button>
+          </div>
         </DialogHeader>
         <div className="grid gap-2 mt-2">
           {(() => {
