@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { useTaskStore } from '@/lib/task-store';
 import { getOrderedWorkspaces, getAppSettings } from '@/components/SettingsDialog';
 import {
