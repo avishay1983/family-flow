@@ -273,18 +273,41 @@ export function SettingsDialog({ open, onClose }: Props) {
                 <p className="text-xs text-muted-foreground">
                   בחר את סוג התצוגה שתוצג בכניסה לאפליקציה
                 </p>
-                <Select
-                  value={settings.defaultViewMode || 'list'}
-                  onValueChange={(v) => update({ defaultViewMode: v as 'list' | 'kanban' })}
-                >
-                  <SelectTrigger className="h-9">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent dir="rtl">
-                    <SelectItem value="list">📋 רשימה</SelectItem>
-                    <SelectItem value="kanban">📊 קנבן</SelectItem>
-                  </SelectContent>
-                </Select>
+                {isMobile ? (
+                  <div className="space-y-2 rounded-md border border-border bg-card p-2">
+                    {[
+                      { value: 'list', label: '📋 רשימה' },
+                      { value: 'kanban', label: '📊 קנבן' },
+                    ].map((option) => {
+                      const isSelected = (settings.defaultViewMode || 'list') === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => update({ defaultViewMode: option.value as 'list' | 'kanban' })}
+                          className="flex w-full items-center justify-between rounded-md border border-border px-3 py-2 text-right transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          aria-pressed={isSelected}
+                        >
+                          <span className="text-sm text-foreground">{option.label}</span>
+                          <span className="text-xs text-muted-foreground">{isSelected ? 'נבחר' : ''}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <Select
+                    value={settings.defaultViewMode || 'list'}
+                    onValueChange={(v) => update({ defaultViewMode: v as 'list' | 'kanban' })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl">
+                      <SelectItem value="list">📋 רשימה</SelectItem>
+                      <SelectItem value="kanban">📊 קנבן</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <div className="space-y-2">
