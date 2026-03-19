@@ -206,20 +206,36 @@ export function SettingsDialog({ open, onClose }: Props) {
                   בחר אם להציג דיאלוג בחירה או לפתוח מרחב עבודה ספציפי אוטומטית
                 </p>
                 {isMobile ? (
-                  <select
-                    dir="rtl"
-                    value={selectedWorkspaceValue}
-                    onChange={(e) => update({ defaultWorkspaceId: e.target.value === 'dialog' ? '' : e.target.value })}
-                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                  >
-                    <option value="dialog">הצג דיאלוג בחירה</option>
-                    {workspaces.map((ws) => (
-                      <option key={ws.id} value={ws.id}>
-                        {ws.icon} {ws.name}
-                      </option>
-                    ))}
-                    <option value="backlog">📋 מחסן משימות</option>
-                  </select>
+                  <div className="space-y-2 rounded-md border border-border bg-card p-2">
+                    {[
+                      { value: 'dialog', label: 'הצג דיאלוג בחירה', icon: '🗂️' },
+                      ...workspaces.map((ws) => ({
+                        value: ws.id,
+                        label: ws.name,
+                        icon: ws.icon,
+                      })),
+                      { value: 'backlog', label: 'מחסן משימות', icon: '📋' },
+                    ].map((option) => {
+                      const isSelected = selectedWorkspaceValue === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => update({ defaultWorkspaceId: option.value === 'dialog' ? '' : option.value })}
+                          className="flex w-full items-center justify-between rounded-md border border-border px-3 py-2 text-right transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                          aria-pressed={isSelected}
+                        >
+                          <span className="flex items-center gap-2 text-sm text-foreground">
+                            <span className="text-base">{option.icon}</span>
+                            <span>{option.label}</span>
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {isSelected ? 'נבחר' : ''}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 ) : (
                   <Select
                     value={selectedWorkspaceValue}
