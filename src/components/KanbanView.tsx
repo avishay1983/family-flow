@@ -89,8 +89,7 @@ export function KanbanView() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const isOverdue = (task: Task) =>
-    !task.completed && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
+  const isOverdue = (task: Task) => safeIsOverdue(task);
 
   const moveTask = (taskId: string, direction: 'next' | 'prev') => {
     const task = tasks.find((t) => t.id === taskId);
