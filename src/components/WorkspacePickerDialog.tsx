@@ -32,10 +32,12 @@ export function WorkspacePickerDialog() {
     return () => clearInterval(interval);
   }, [onboardingDone]);
 
-  const open = !isLoading && workspaces.length > 0 && !activeWorkspace && onboardingDone;
+  const shouldShow = !isLoading && workspaces.length > 0 && !activeWorkspace && onboardingDone;
+
+  if (!shouldShow) return null;
 
   return (
-    <Dialog open={open}>
+    <Dialog open={true} onOpenChange={() => {}}>
       <DialogContent
         dir="rtl"
         className="sm:max-w-sm [&>button]:hidden rounded-3xl border-border/40 bg-background/95 backdrop-blur-2xl shadow-2xl"
