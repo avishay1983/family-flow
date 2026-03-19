@@ -40,6 +40,7 @@ export function WorkspacePickerDialog() {
 
   if (!shouldShow) return null;
 
+  return (
     <>
     <Dialog open={true} onOpenChange={() => {}}>
       <DialogContent
