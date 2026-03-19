@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Task, TaskStatus, Priority } from '@/lib/types';
 
@@ -41,9 +41,7 @@ export function KanbanView() {
   const [moveToWsTask, setMoveToWsTask] = useState<Task | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [activeCol, setActiveCol] = useState(0);
   const isMobile = useIsMobile();
-  const scrollRef = useRef<HTMLDivElement>(null);
   const tasks = getFilteredTasks();
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
@@ -73,16 +71,6 @@ export function KanbanView() {
   const isOverdue = (task: Task) =>
     !task.completed && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
 
-  const scrollToCol = (idx: number) => {
-    const clamped = Math.max(0, Math.min(columns.length - 1, idx));
-    setActiveCol(clamped);
-    if (scrollRef.current) {
-      const colWidth = scrollRef.current.scrollWidth / columns.length;
-      scrollRef.current.scrollTo({ left: colWidth * clamped, behavior: 'smooth' });
-    }
-  };
-
-  // Mobile: move task to next/prev column via long press or buttons
   const moveTask = (taskId: string, direction: 'next' | 'prev') => {
     const task = tasks.find((t) => t.id === taskId);
     if (!task) return;
@@ -96,179 +84,188 @@ export function KanbanView() {
     updateTaskStatus(taskId, targetStatus);
   };
 
+  const renderTaskCard = (task: Task, colIdx: number) => {
+    const ws = workspaces.find((w) => w.id === task.workspaceId);
+    const assigneeNames = task.assigneeIds;
+    const overdue = isOverdue(task);
+    const canMoveNext = colIdx < columns.length - 1;
+    const canMovePrev = colIdx > 0;
+
+    return (
+      <motion.div
+        key={task.id}
+        layout
+        draggable={!isMobile}
+        onDragStart={(e) => !isMobile && handleDragStart(e as any, task.id)}
+        className={`rounded-xl border bg-card p-3 shadow-sm transition-shadow ${
+          isMobile ? 'active:shadow-md' : 'cursor-grab active:cursor-grabbing hover:shadow-md'
+        } ${overdue ? 'border-destructive/30' : 'border-border'} ${
+          draggedId === task.id ? 'opacity-50' : ''
+        }`}
+      >
+        <div className="flex items-start gap-2 group">
+          {!isMobile && (
+            <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
+          )}
+          <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setMoveToWsTask(task);
+              }}
+              className="p-1 rounded hover:bg-accent transition-all text-muted-foreground hover:text-foreground md:opacity-0 md:group-hover:opacity-100"
+              title="העבר למרחב אחר"
+            >
+              <ArrowRightLeft className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditTask(task);
+              }}
+              className="p-1 rounded hover:bg-accent transition-all text-muted-foreground hover:text-foreground md:opacity-0 md:group-hover:opacity-100"
+              title="ערוך משימה"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteId(task.id);
+              }}
+              className="p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all text-muted-foreground md:opacity-0 md:group-hover:opacity-100"
+              title="מחק משימה"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <div className={`h-2 w-2 rounded-full shrink-0 ${priorityDot[task.priority]}`} />
+              <span className={`text-sm font-medium truncate ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                {task.title}
+              </span>
+            </div>
+
+            {task.description && (
+              <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                {task.description}
+              </p>
+            )}
+
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <div className={`flex items-center gap-1 text-xs ${overdue ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {overdue && <AlertCircle className="h-3 w-3" />}
+                <Calendar className="h-3 w-3" />
+                {format(new Date(task.dueDate), 'dd/MM', { locale: he })}
+              </div>
+
+              {ws && <span className="text-xs text-muted-foreground">{ws.icon}</span>}
+
+              {assigneeNames.length > 0 && (
+                <span className="mr-auto text-xs text-muted-foreground">
+                  {assigneeNames.map((n) => n.split(' ')[0]).join(', ')}
+                </span>
+              )}
+            </div>
+
+            {task.tags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {task.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {isMobile && (
+              <div className="mt-2 flex items-center gap-2 border-t border-border pt-2">
+                {canMovePrev && (
+                  <button
+                    onClick={() => moveTask(task.id, 'prev')}
+                    className="flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                    {columns[colIdx - 1].label}
+                  </button>
+                )}
+                {canMoveNext && (
+                  <button
+                    onClick={() => moveTask(task.id, 'next')}
+                    className="mr-auto flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {columns[colIdx + 1].label}
+                    <ChevronLeft className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
     <>
-      {/* Mobile column navigation dots */}
-      {isMobile && (
-        <div className="flex items-center justify-center gap-3 mb-3" dir="rtl">
-          {columns.map((col, idx) => (
-            <button
-              key={col.id}
-              onClick={() => scrollToCol(idx)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                activeCol === idx
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-muted-foreground'
-              }`}
-            >
-              {col.label}
-            </button>
-          ))}
+      {isMobile ? (
+        <div className="space-y-4" dir="rtl">
+          {columns.map((col, colIdx) => {
+            const colTasks = tasks.filter((t) => t.status === col.id);
+
+            return (
+              <section
+                key={col.id}
+                className="rounded-2xl border border-border/60 bg-card/50 p-3 shadow-sm"
+              >
+                <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 ${col.color}`}>
+                  <h3 className="text-sm font-semibold">{col.label}</h3>
+                  <Badge variant="secondary" className="h-5 min-w-5 justify-center text-xs">
+                    {colTasks.length}
+                  </Badge>
+                </div>
+
+                <div className="space-y-2">
+                  {colTasks.length > 0 ? (
+                    colTasks.map((task) => renderTaskCard(task, colIdx))
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-border bg-background/40 px-3 py-5 text-center text-sm text-muted-foreground">
+                      אין משימות בעמודה הזו
+                    </div>
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="flex gap-4 overflow-x-auto pb-4" dir="rtl">
+          {columns.map((col, colIdx) => {
+            const colTasks = tasks.filter((t) => t.status === col.id);
+
+            return (
+              <div
+                key={col.id}
+                className="flex min-w-[280px] flex-1 flex-col"
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, col.id)}
+              >
+                <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 ${col.color}`}>
+                  <h3 className="text-sm font-semibold">{col.label}</h3>
+                  <Badge variant="secondary" className="h-5 min-w-5 justify-center text-xs">
+                    {colTasks.length}
+                  </Badge>
+                </div>
+
+                <div className="flex-1 space-y-2">
+                  {colTasks.map((task) => renderTaskCard(task, colIdx))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
-
-      <div
-        ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory md:snap-none"
-        dir="rtl"
-        onScroll={(e) => {
-          if (isMobile && scrollRef.current) {
-            const colWidth = scrollRef.current.scrollWidth / columns.length;
-            const newIdx = Math.round(scrollRef.current.scrollLeft / colWidth);
-            if (newIdx !== activeCol) setActiveCol(newIdx);
-          }
-        }}
-      >
-        {columns.map((col, colIdx) => {
-          const colTasks = tasks.filter((t) => t.status === col.id);
-          return (
-            <div
-              key={col.id}
-              className="flex-shrink-0 w-[85vw] md:w-auto md:flex-1 min-w-[280px] flex flex-col snap-center"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, col.id)}
-            >
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-3 ${col.color}`}>
-                <h3 className="text-sm font-semibold">{col.label}</h3>
-                <Badge variant="secondary" className="text-xs h-5 min-w-5 justify-center">
-                  {colTasks.length}
-                </Badge>
-              </div>
-
-              <div className="flex-1 space-y-2">
-                {colTasks.map((task) => {
-                  const ws = workspaces.find((w) => w.id === task.workspaceId);
-                  const assigneeNames = task.assigneeIds;
-                  const overdue = isOverdue(task);
-                  const canMoveNext = colIdx < columns.length - 1;
-                  const canMovePrev = colIdx > 0;
-
-                  return (
-                    <motion.div
-                      key={task.id}
-                      layout
-                      draggable={!isMobile}
-                      onDragStart={(e) => !isMobile && handleDragStart(e as any, task.id)}
-                      className={`rounded-xl border bg-card p-3 shadow-sm transition-shadow ${
-                        isMobile ? 'active:shadow-md' : 'cursor-grab active:cursor-grabbing hover:shadow-md'
-                      } ${overdue ? 'border-destructive/30' : 'border-border'} ${
-                        draggedId === task.id ? 'opacity-50' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-2 group">
-                        {!isMobile && (
-                          <GripVertical className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
-                        )}
-                        <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setMoveToWsTask(task); }}
-                            className="p-1 rounded hover:bg-accent transition-all text-muted-foreground hover:text-foreground md:opacity-0 md:group-hover:opacity-100"
-                            title="העבר למרחב אחר"
-                          >
-                            <ArrowRightLeft className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setEditTask(task); }}
-                            className="p-1 rounded hover:bg-accent transition-all text-muted-foreground hover:text-foreground md:opacity-0 md:group-hover:opacity-100"
-                            title="ערוך משימה"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setDeleteId(task.id); }}
-                            className="p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-all text-muted-foreground md:opacity-0 md:group-hover:opacity-100"
-                            title="מחק משימה"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <div className={`h-2 w-2 rounded-full shrink-0 ${priorityDot[task.priority]}`} />
-                            <span className={`text-sm font-medium truncate ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                              {task.title}
-                            </span>
-                          </div>
-
-                          {task.description && (
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {task.description}
-                            </p>
-                          )}
-
-                          <div className="flex items-center gap-2 mt-2 flex-wrap">
-                            <div className={`flex items-center gap-1 text-xs ${overdue ? 'text-destructive' : 'text-muted-foreground'}`}>
-                              {overdue && <AlertCircle className="h-3 w-3" />}
-                              <Calendar className="h-3 w-3" />
-                              {format(new Date(task.dueDate), 'dd/MM', { locale: he })}
-                            </div>
-
-                            {ws && (
-                              <span className="text-xs text-muted-foreground">
-                                {ws.icon}
-                              </span>
-                            )}
-
-                            {assigneeNames.length > 0 && (
-                              <span className="text-xs text-muted-foreground mr-auto">
-                                {assigneeNames.map(n => n.split(' ')[0]).join(', ')}
-                              </span>
-                            )}
-                          </div>
-
-                          {task.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {task.tags.map((tag) => (
-                                <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Mobile: move buttons */}
-                          {isMobile && (
-                            <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border">
-                              {canMovePrev && (
-                                <button
-                                  onClick={() => moveTask(task.id, 'prev')}
-                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md bg-secondary transition-colors"
-                                >
-                                  <ChevronRight className="h-3 w-3" />
-                                  {columns[colIdx - 1].label}
-                                </button>
-                              )}
-                              {canMoveNext && (
-                                <button
-                                  onClick={() => moveTask(task.id, 'next')}
-                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-md bg-secondary transition-colors mr-auto"
-                                >
-                                  {columns[colIdx + 1].label}
-                                  <ChevronLeft className="h-3 w-3" />
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
         <AlertDialogContent dir="rtl">
@@ -280,7 +277,12 @@ export function KanbanView() {
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse gap-2">
             <AlertDialogAction
-              onClick={() => { if (deleteId) { deleteTask(deleteId); setDeleteId(null); } }}
+              onClick={() => {
+                if (deleteId) {
+                  deleteTask(deleteId);
+                  setDeleteId(null);
+                }
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               מחק
