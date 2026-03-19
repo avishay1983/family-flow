@@ -89,9 +89,13 @@ interface Props {
   onClose: () => void;
 }
 
-function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: {
-  id: string; icon: string; name: string; visible: boolean; onToggleVisibility: (id: string) => void;
-}) {
+const SortableWorkspaceItem = React.forwardRef<HTMLDivElement, {
+  id: string;
+  icon: string;
+  name: string;
+  visible: boolean;
+  onToggleVisibility: (id: string) => void;
+}>(({ id, icon, name, visible, onToggleVisibility }, ref) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -102,7 +106,11 @@ function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: 
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      }}
       style={style}
       className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card"
     >
@@ -118,7 +126,9 @@ function SortableWorkspaceItem({ id, icon, name, visible, onToggleVisibility }: 
       <span className={`text-sm font-medium ${!visible ? 'opacity-40 text-muted-foreground' : 'text-foreground'}`}>{name}</span>
     </div>
   );
-}
+});
+
+SortableWorkspaceItem.displayName = 'SortableWorkspaceItem';
 
 export function SettingsDialog({ open, onClose }: Props) {
   const [settings, setSettings] = useState<AppSettings>(getAppSettings);
