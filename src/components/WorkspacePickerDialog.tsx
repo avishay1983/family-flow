@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Sun, Moon } from 'lucide-react';
 import shabbatIcon from '@/assets/shabbat-icon.png';
 
 const SPECIAL_ICONS: Record<string, string> = {
