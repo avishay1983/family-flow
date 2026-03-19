@@ -4,6 +4,7 @@ import { useTaskStore } from '@/lib/task-store';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
