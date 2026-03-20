@@ -117,7 +117,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
       id: crypto.randomUUID(),
       title,
       description,
-      workspaceId: workspaceId || '',
+      workspaceId: isBacklogMode ? (workspaceId || '') : (workspaceId || ''),
       assigneeIds: isBacklogMode && currentUser ? [currentUser] : assigneeIds,
       priority,
       status: 'todo',
@@ -168,6 +168,37 @@ export function CreateTaskModal({ open, onClose }: Props) {
               }
             }}
           />
+
+          {isBacklogMode && workspaces.length > 0 && (
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">קשר למרחב עבודה (אופציונלי)</label>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setWorkspaceId('')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    !workspaceId
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  }`}
+                >
+                  ללא
+                </button>
+                {workspaces.map((ws) => (
+                  <button
+                    key={ws.id}
+                    onClick={() => setWorkspaceId(ws.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      workspaceId === ws.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                    }`}
+                  >
+                    {ws.icon} {ws.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {!isBacklogMode && (
             <>

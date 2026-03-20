@@ -284,17 +284,40 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
 }
 
 export function ListView() {
-  const { getFilteredTasks, toggleComplete, deleteTask, updateTask, workspaces, reorderTasks } = useTaskStore();
+  const { getFilteredTasks, toggleComplete, deleteTask, updateTask, workspaces, reorderTasks, activeWorkspace } = useTaskStore();
   const [recurringTask, setRecurringTask] = useState<Task | null>(null);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const isBacklog = activeWorkspace === 'backlog';
   const tasks = getFilteredTasks().sort((a, b) => {
     // Sort by position first, then by date
     if ((a.position ?? 0) !== (b.position ?? 0)) return (a.position ?? 0) - (b.position ?? 0);
     return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
   const sections = groupTasksByWeek(tasks);
+
+  // Group backlog tasks by workspace
+  const backlogByWorkspace = isBacklog ? (() => {
+    const groups: { wsId: string; wsLabel: string; wsIcon: string; tasks: Task[] }[] = [];
+    const unlinked: Task[] = [];
+    const wsMap = new Map(workspaces.map(w => [w.id, w]));
+    
+    for (const task of tasks) {
+      if (task.workspaceId && wsMap.has(task.workspaceId)) {
+        let group = groups.find(g => g.wsId === task.workspaceId);
+        if (!group) {
+          const ws = wsMap.get(task.workspaceId)!;
+          group = { wsId: ws.id, wsLabel: ws.name, wsIcon: ws.icon, tasks: [] };
+          groups.push(group);
+        }
+        group.tasks.push(task);
+      } else {
+        unlinked.push(task);
+      }
+    }
+    return { groups, unlinked };
+  })() : null;
 
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 8 } });
   const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } });
@@ -343,58 +366,97 @@ export function ListView() {
 
   const allTaskIds = tasks.map((t) => t.id);
 
+  const renderTaskList = (taskList: Task[]) => (
+    <div className="space-y-1">
+      {taskList.map((task) => (
+        <SortableTaskItem
+          key={task.id}
+          task={task}
+          workspaces={workspaces}
+          isOverdue={isOverdue}
+          onToggle={handleToggle}
+          onEdit={setEditTask}
+          onDelete={(id) => setDeleteId(id)}
+          onMove={setMoveTask}
+        />
+      ))}
+    </div>
+  );
+
   return (
     <>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={allTaskIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-6" dir="rtl">
-            {sections.map((section) => {
-              const style = sectionStyles[section.sectionType];
-              return (
-                <div key={section.sectionType}>
-                  <div className={`flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl ${style.bg} border ${style.border} backdrop-blur-sm`}>
-                    <span className={`text-sm font-bold ${style.text}`}>
-                      {section.sectionLabel}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      ({section.dateGroups.reduce((sum, g) => sum + g.tasks.length, 0)})
-                    </span>
+            {isBacklog && backlogByWorkspace ? (
+              <>
+                {backlogByWorkspace.groups.map((group) => (
+                  <div key={group.wsId}>
+                    <div className="flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl bg-primary/6 border border-primary/20 backdrop-blur-sm">
+                      <span className="text-sm font-bold text-primary">
+                        {group.wsIcon} {group.wsLabel}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        ({group.tasks.length})
+                      </span>
+                    </div>
+                    <div className="pr-1">
+                      {renderTaskList(group.tasks)}
+                    </div>
                   </div>
+                ))}
+                {backlogByWorkspace.unlinked.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl bg-muted/40 border border-border/50 backdrop-blur-sm">
+                      <span className="text-sm font-bold text-muted-foreground">
+                        📋 ללא מרחב
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        ({backlogByWorkspace.unlinked.length})
+                      </span>
+                    </div>
+                    <div className="pr-1">
+                      {renderTaskList(backlogByWorkspace.unlinked)}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              sections.map((section) => {
+                const style = sectionStyles[section.sectionType];
+                return (
+                  <div key={section.sectionType}>
+                    <div className={`flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl ${style.bg} border ${style.border} backdrop-blur-sm`}>
+                      <span className={`text-sm font-bold ${style.text}`}>
+                        {section.sectionLabel}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        ({section.dateGroups.reduce((sum, g) => sum + g.tasks.length, 0)})
+                      </span>
+                    </div>
 
-                  <div className="space-y-3 pr-1">
-                    {section.dateGroups.map(({ label, dateKey, tasks: dateTasks }) => {
-                      const hasOverdue = dateTasks.some(isOverdue);
-                      return (
-                        <div key={dateKey}>
-                          <div className={`sticky top-0 z-10 flex items-center gap-2 py-1.5 px-2 mb-1 backdrop-blur-xl bg-background/70 border-b ${hasOverdue ? 'border-destructive/20' : 'border-border/30'} rounded-lg`}>
-                            <span className={`text-xs font-semibold ${hasOverdue ? 'text-destructive' : 'text-foreground'}`}>
-                              {label}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              ({dateTasks.length})
-                            </span>
+                    <div className="space-y-3 pr-1">
+                      {section.dateGroups.map(({ label, dateKey, tasks: dateTasks }) => {
+                        const hasOverdue = dateTasks.some(isOverdue);
+                        return (
+                          <div key={dateKey}>
+                            <div className={`sticky top-0 z-10 flex items-center gap-2 py-1.5 px-2 mb-1 backdrop-blur-xl bg-background/70 border-b ${hasOverdue ? 'border-destructive/20' : 'border-border/30'} rounded-lg`}>
+                              <span className={`text-xs font-semibold ${hasOverdue ? 'text-destructive' : 'text-foreground'}`}>
+                                {label}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                ({dateTasks.length})
+                              </span>
+                            </div>
+                            {renderTaskList(dateTasks)}
                           </div>
-                          <div className="space-y-1">
-                            {dateTasks.map((task) => (
-                              <SortableTaskItem
-                                key={task.id}
-                                task={task}
-                                workspaces={workspaces}
-                                isOverdue={isOverdue}
-                                onToggle={handleToggle}
-                                onEdit={setEditTask}
-                                onDelete={(id) => setDeleteId(id)}
-                                onMove={setMoveTask}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
 
             {tasks.length === 0 && (
               <div className="flex flex-col items-center py-16 text-muted-foreground">
