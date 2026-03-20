@@ -284,17 +284,40 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
 }
 
 export function ListView() {
-  const { getFilteredTasks, toggleComplete, deleteTask, updateTask, workspaces, reorderTasks } = useTaskStore();
+  const { getFilteredTasks, toggleComplete, deleteTask, updateTask, workspaces, reorderTasks, activeWorkspace } = useTaskStore();
   const [recurringTask, setRecurringTask] = useState<Task | null>(null);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const isBacklog = activeWorkspace === 'backlog';
   const tasks = getFilteredTasks().sort((a, b) => {
     // Sort by position first, then by date
     if ((a.position ?? 0) !== (b.position ?? 0)) return (a.position ?? 0) - (b.position ?? 0);
     return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
   const sections = groupTasksByWeek(tasks);
+
+  // Group backlog tasks by workspace
+  const backlogByWorkspace = isBacklog ? (() => {
+    const groups: { wsId: string; wsLabel: string; wsIcon: string; tasks: Task[] }[] = [];
+    const unlinked: Task[] = [];
+    const wsMap = new Map(workspaces.map(w => [w.id, w]));
+    
+    for (const task of tasks) {
+      if (task.workspaceId && wsMap.has(task.workspaceId)) {
+        let group = groups.find(g => g.wsId === task.workspaceId);
+        if (!group) {
+          const ws = wsMap.get(task.workspaceId)!;
+          group = { wsId: ws.id, wsLabel: ws.name, wsIcon: ws.icon, tasks: [] };
+          groups.push(group);
+        }
+        group.tasks.push(task);
+      } else {
+        unlinked.push(task);
+      }
+    }
+    return { groups, unlinked };
+  })() : null;
 
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 8 } });
   const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } });
