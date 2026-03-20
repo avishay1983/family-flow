@@ -117,7 +117,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
       id: crypto.randomUUID(),
       title,
       description,
-      workspaceId: workspaceId || '',
+      workspaceId: isBacklogMode ? (workspaceId || '') : (workspaceId || ''),
       assigneeIds: isBacklogMode && currentUser ? [currentUser] : assigneeIds,
       priority,
       status: 'todo',
