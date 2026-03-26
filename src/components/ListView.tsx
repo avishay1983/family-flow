@@ -336,9 +336,12 @@ export function ListView() {
 
   const handleToggle = (task: Task) => {
     if (!task.completed) {
+      // Show completion dialog - don't toggle yet, dialog will handle it
       setRecurringTask(task);
+    } else {
+      // Uncompleting - just toggle directly
+      toggleComplete(task.id);
     }
-    toggleComplete(task.id);
   };
 
   const isOverdue = (task: Task) => !task.completed && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
