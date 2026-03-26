@@ -525,7 +525,9 @@ export function ListView() {
                       onClick={() => {
                         const currentUser = useTaskStore.getState().currentUser;
                         completedTasks.forEach(t => updateTask(t.id, { 
-                          isBacklog: true, 
+                          isBacklog: true,
+                          completed: false,
+                          status: 'todo',
                           ...(currentUser ? { assigneeIds: [currentUser] } : {})
                         }));
                         setShowBulkActions(false);
