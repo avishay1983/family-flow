@@ -1,0 +1,1 @@
+UPDATE tasks SET completed = false, status = 'todo' WHERE is_backlog = true AND completed = true;
