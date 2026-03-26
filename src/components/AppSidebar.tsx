@@ -103,7 +103,8 @@ export function AppSidebar() {
   const getTaskCount = (wsId: string) =>
     tasks.filter((t) => t.workspaceId === wsId && !t.completed).length;
 
-  const backlogCount = tasks.filter((t) => t.isBacklog && !t.completed && (!currentUser || t.assigneeIds.length === 0 || t.assigneeIds.includes(currentUser))).length;
+  const accessibleWorkspaceIds = new Set(workspaces.map((workspace) => workspace.id));
+  const backlogCount = tasks.filter((t) => t.isBacklog && !t.completed && (!currentUser || t.assigneeIds.length === 0 || t.assigneeIds.includes(currentUser) || (!!t.workspaceId && accessibleWorkspaceIds.has(t.workspaceId)))).length;
 
   const toggleMember = (name: string) => {
     setSelectedMembers(prev => 

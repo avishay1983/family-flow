@@ -19,7 +19,7 @@ interface Props {
 }
 
 export function RecurringTaskDialog({ task, onClose }: Props) {
-  const { addTask, updateTask, toggleComplete } = useTaskStore();
+  const { addTask, updateTask, toggleComplete, currentUser } = useTaskStore();
   const [mode, setMode] = useState<'choose' | 'reschedule'>('choose');
   const [customDate, setCustomDate] = useState('');
 
@@ -30,7 +30,7 @@ export function RecurringTaskDialog({ task, onClose }: Props) {
       isBacklog: true,
       completed: false,
       status: 'todo',
-      ...(task.assigneeIds.length === 0 ? { assigneeIds: [] } : {}),
+      assigneeIds: currentUser ? [currentUser] : task.assigneeIds,
     });
     onClose();
     setMode('choose');
