@@ -523,7 +523,11 @@ export function ListView() {
                       variant="outline"
                       className="w-full justify-start gap-2 h-11"
                       onClick={() => {
-                        completedTasks.forEach(t => updateTask(t.id, { isBacklog: true }));
+                        const currentUser = useTaskStore.getState().currentUser;
+                        completedTasks.forEach(t => updateTask(t.id, { 
+                          isBacklog: true, 
+                          ...(currentUser ? { assigneeIds: [currentUser] } : {})
+                        }));
                         setShowBulkActions(false);
                       }}
                     >
