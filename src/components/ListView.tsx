@@ -424,32 +424,44 @@ export function ListView() {
               <>
                 {backlogByWorkspace.groups.map((group) => (
                   <div key={group.wsId}>
-                    <div className="flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl bg-primary/6 border border-primary/20 backdrop-blur-sm">
+                    <button
+                      onClick={() => toggleGroup(group.wsId)}
+                      className="w-full flex items-center gap-2 py-2.5 px-4 mb-1 rounded-2xl bg-primary/6 border border-primary/20 backdrop-blur-sm hover:bg-primary/10 transition-colors cursor-pointer"
+                    >
+                      <ChevronDown className={`h-4 w-4 text-primary transition-transform ${expandedGroups.has(group.wsId) ? '' : '-rotate-90'}`} />
                       <span className="text-sm font-bold text-primary">
                         {group.wsIcon} {group.wsLabel}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         ({group.tasks.length})
                       </span>
-                    </div>
-                    <div className="pr-1">
-                      {renderTaskList(group.tasks)}
-                    </div>
+                    </button>
+                    {expandedGroups.has(group.wsId) && (
+                      <div className="pr-1 mt-2">
+                        {renderTaskList(group.tasks)}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {backlogByWorkspace.unlinked.length > 0 && (
                   <div>
-                    <div className="flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl bg-muted/40 border border-border/50 backdrop-blur-sm">
+                    <button
+                      onClick={() => toggleGroup('__unlinked')}
+                      className="w-full flex items-center gap-2 py-2.5 px-4 mb-1 rounded-2xl bg-muted/40 border border-border/50 backdrop-blur-sm hover:bg-muted/60 transition-colors cursor-pointer"
+                    >
+                      <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedGroups.has('__unlinked') ? '' : '-rotate-90'}`} />
                       <span className="text-sm font-bold text-muted-foreground">
                         📋 ללא מרחב
                       </span>
                       <span className="text-xs text-muted-foreground">
                         ({backlogByWorkspace.unlinked.length})
                       </span>
-                    </div>
-                    <div className="pr-1">
-                      {renderTaskList(backlogByWorkspace.unlinked)}
-                    </div>
+                    </button>
+                    {expandedGroups.has('__unlinked') && (
+                      <div className="pr-1 mt-2">
+                        {renderTaskList(backlogByWorkspace.unlinked)}
+                      </div>
+                    )}
                   </div>
                 )}
               </>
