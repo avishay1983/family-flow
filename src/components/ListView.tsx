@@ -382,7 +382,7 @@ export function ListView() {
     'future': { bg: 'bg-muted/40', border: 'border-border/50', text: 'text-muted-foreground' },
   };
 
-  const allTaskIds = tasks.map((t) => t.id);
+  const allTaskIds = allTasks.map((t) => t.id);
 
   const renderTaskList = (taskList: Task[]) => (
     <div className="space-y-1">
