@@ -184,7 +184,7 @@ export function AppSidebar() {
                 {getOrderedWorkspaces(workspaces.filter(ws => !ws.groupId)).map((ws) => (
                   <SidebarMenuItem key={ws.id}>
                     <SidebarMenuButton
-                      onClick={() => setActiveWorkspace(ws.id)}
+                      onClick={() => { setActiveWorkspace(ws.id); setOpenMobile(false); }}
                       className={`gap-3 rounded-lg transition-colors group ${
                         activeWorkspace === ws.id
                           ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
