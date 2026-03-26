@@ -501,12 +501,18 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
   },
 
   getFilteredTasks: () => {
-    const { tasks, activeWorkspace, searchQuery } = get();
+    const { tasks, activeWorkspace, searchQuery, currentUser, workspaces } = get();
+    const accessibleWorkspaceIds = new Set(workspaces.map((workspace) => workspace.id));
+
     return tasks
       .filter((t) => {
         if (activeWorkspace === 'backlog') {
-          const currentUser = get().currentUser;
-          return !!t.isBacklog && (!currentUser || t.assigneeIds.length === 0 || t.assigneeIds.includes(currentUser));
+          return !!t.isBacklog && (
+            !currentUser ||
+            t.assigneeIds.length === 0 ||
+            t.assigneeIds.includes(currentUser) ||
+            (!!t.workspaceId && accessibleWorkspaceIds.has(t.workspaceId))
+          );
         }
         return !t.isBacklog && (!activeWorkspace || t.workspaceId === activeWorkspace);
       })
