@@ -299,12 +299,17 @@ export function ListView() {
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showCompleted, setShowCompleted] = useState(false);
   const isBacklog = activeWorkspace === 'backlog';
-  const tasks = getFilteredTasks().sort((a, b) => {
-    // Sort by position first, then by date
+  const allTasks = getFilteredTasks().sort((a, b) => {
     if ((a.position ?? 0) !== (b.position ?? 0)) return (a.position ?? 0) - (b.position ?? 0);
     return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
+  
+  // Separate completed from active
+  const activeTasks = allTasks.filter(t => !t.completed);
+  const completedTasks = allTasks.filter(t => t.completed);
+  const tasks = activeTasks; // sections use only active
   const sections = groupTasksByWeek(tasks);
 
   // Group backlog tasks by workspace
