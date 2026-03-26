@@ -304,7 +304,17 @@ export function ListView() {
   const [showCompleted, setShowCompleted] = useState(false);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showBulkReschedule, setShowBulkReschedule] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const isBacklog = activeWorkspace === 'backlog';
+
+  const toggleGroup = useCallback((groupId: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  }, []);
   const allTasks = getFilteredTasks().sort((a, b) => {
     if ((a.position ?? 0) !== (b.position ?? 0)) return (a.position ?? 0) - (b.position ?? 0);
     return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
