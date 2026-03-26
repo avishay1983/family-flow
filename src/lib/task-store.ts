@@ -506,7 +506,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
       .filter((t) => {
         if (activeWorkspace === 'backlog') {
           const currentUser = get().currentUser;
-          return !!t.isBacklog && (!currentUser || t.assigneeIds.includes(currentUser));
+          return !!t.isBacklog && (!currentUser || t.assigneeIds.length === 0 || t.assigneeIds.includes(currentUser));
         }
         return !t.isBacklog && (!activeWorkspace || t.workspaceId === activeWorkspace);
       })
