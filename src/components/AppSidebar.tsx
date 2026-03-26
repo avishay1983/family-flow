@@ -270,7 +270,7 @@ export function AppSidebar() {
                               {groupWorkspaces.map((ws) => (
                                 <button
                                   key={ws.id}
-                                  onClick={() => setActiveWorkspace(ws.id)}
+                                  onClick={() => { setActiveWorkspace(ws.id); setOpenMobile(false); }}
                                   className={`w-full flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
                                     activeWorkspace === ws.id
                                       ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
