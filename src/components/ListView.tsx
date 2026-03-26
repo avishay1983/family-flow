@@ -213,11 +213,16 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
                   {task.dueTime}
                 </div>
               )}
-              {ws && (
-                <span className="text-xs text-muted-foreground">
-                  {ws.icon}
-                </span>
-              )}
+              <button
+                onClick={(e) => { e.stopPropagation(); onMove(task); }}
+                className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded-md hover:bg-accent transition-colors"
+              >
+                {ws ? (
+                  <><span>{ws.icon}</span><span>{ws.name}</span></>
+                ) : (
+                  <><ArrowRightLeft className="h-3 w-3" /><span>קשר למרחב</span></>
+                )}
+              </button>
             </div>
           </div>
 
@@ -233,11 +238,16 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
             {priorityLabels[task.priority]}
           </Badge>
 
-          {ws && (
-            <span className="text-xs text-muted-foreground shrink-0 hidden md:inline">
-              {ws.icon} {ws.name}
-            </span>
-          )}
+          <button
+            onClick={(e) => { e.stopPropagation(); onMove(task); }}
+            className="flex items-center gap-1 text-xs text-muted-foreground shrink-0 hidden md:inline-flex bg-muted/60 px-2 py-0.5 rounded-md hover:bg-accent transition-colors"
+          >
+            {ws ? (
+              <><span>{ws.icon}</span><span>{ws.name}</span></>
+            ) : (
+              <><ArrowRightLeft className="h-3 w-3" /><span>קשר למרחב</span></>
+            )}
+          </button>
 
           {assigneeNames.length > 0 && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0 hidden lg:flex">
