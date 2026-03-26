@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, isPast, isToday, isYesterday, isTomorrow, parseISO, startOfWeek, endOfWeek, isWithinInterval, isBefore } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, Clock, User, AlertCircle, Trash2, Pencil, ArrowRightLeft, GripVertical, Info } from 'lucide-react';
+import { Calendar, Clock, User, AlertCircle, Trash2, Pencil, ArrowRightLeft, GripVertical, Info, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   AlertDialog,
@@ -299,12 +299,17 @@ export function ListView() {
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [showCompleted, setShowCompleted] = useState(false);
   const isBacklog = activeWorkspace === 'backlog';
-  const tasks = getFilteredTasks().sort((a, b) => {
-    // Sort by position first, then by date
+  const allTasks = getFilteredTasks().sort((a, b) => {
     if ((a.position ?? 0) !== (b.position ?? 0)) return (a.position ?? 0) - (b.position ?? 0);
     return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
+  
+  // Separate completed from active
+  const activeTasks = allTasks.filter(t => !t.completed);
+  const completedTasks = allTasks.filter(t => t.completed);
+  const tasks = activeTasks; // sections use only active
   const sections = groupTasksByWeek(tasks);
 
   // Group backlog tasks by workspace
@@ -377,7 +382,7 @@ export function ListView() {
     'future': { bg: 'bg-muted/40', border: 'border-border/50', text: 'text-muted-foreground' },
   };
 
-  const allTaskIds = tasks.map((t) => t.id);
+  const allTaskIds = allTasks.map((t) => t.id);
 
   const renderTaskList = (taskList: Task[]) => (
     <div className="space-y-1">
@@ -435,43 +440,75 @@ export function ListView() {
                 )}
               </>
             ) : (
-              sections.map((section) => {
-                const style = sectionStyles[section.sectionType];
-                return (
-                  <div key={section.sectionType}>
-                    <div className={`flex items-center gap-2 py-2.5 px-4 mb-3 rounded-2xl ${style.bg} border ${style.border} backdrop-blur-sm`}>
-                      <span className={`text-sm font-bold ${style.text}`}>
-                        {section.sectionLabel}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        ({section.dateGroups.reduce((sum, g) => sum + g.tasks.length, 0)})
-                      </span>
-                    </div>
+              <>
+                {sections.map((section) => {
+                  const style = sectionStyles[section.sectionType];
+                  const totalCount = section.dateGroups.reduce((sum, g) => sum + g.tasks.length, 0);
+                  return (
+                    <div key={section.sectionType} className="space-y-2">
+                      {/* Section header */}
+                      <div className={`flex items-center gap-3 py-3 px-4 rounded-2xl ${style.bg} border ${style.border}`}>
+                        <span className={`text-base font-bold ${style.text}`}>
+                          {section.sectionLabel}
+                        </span>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${style.bg} ${style.text} border ${style.border}`}>
+                          {totalCount}
+                        </span>
+                      </div>
 
-                    <div className="space-y-3 pr-1">
-                      {section.dateGroups.map(({ label, dateKey, tasks: dateTasks }) => {
-                        const hasOverdue = dateTasks.some(isOverdue);
-                        return (
-                          <div key={dateKey}>
-                            <div className={`sticky top-0 z-10 flex items-center gap-2 py-1.5 px-2 mb-1 backdrop-blur-xl bg-background/70 border-b ${hasOverdue ? 'border-destructive/20' : 'border-border/30'} rounded-lg`}>
-                              <span className={`text-xs font-semibold ${hasOverdue ? 'text-destructive' : 'text-foreground'}`}>
-                                {label}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                ({dateTasks.length})
-                              </span>
+                      {/* Date sub-groups */}
+                      <div className="space-y-1 pr-2 border-r-2 border-border/20 mr-2">
+                        {section.dateGroups.map(({ label, dateKey, tasks: dateTasks }) => {
+                          const hasOverdue = dateTasks.some(isOverdue);
+                          return (
+                            <div key={dateKey}>
+                              <div className={`sticky top-0 z-10 flex items-center gap-2 py-1.5 px-3 mb-1 backdrop-blur-xl bg-background/80 rounded-lg`}>
+                                <div className={`w-2 h-2 rounded-full shrink-0 ${hasOverdue ? 'bg-destructive' : 'bg-primary/50'}`} />
+                                <span className={`text-xs font-semibold ${hasOverdue ? 'text-destructive' : 'text-foreground/80'}`}>
+                                  {label}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">
+                                  ({dateTasks.length})
+                                </span>
+                              </div>
+                              {renderTaskList(dateTasks)}
                             </div>
-                            {renderTaskList(dateTasks)}
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })
+                  );
+                })}
+              </>
             )}
 
-            {tasks.length === 0 && (
+            {/* Completed tasks section */}
+            {completedTasks.length > 0 && (
+              <div className="space-y-2">
+                <button
+                  onClick={() => setShowCompleted(!showCompleted)}
+                  className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-success/6 border border-success/15 w-full text-right hover:bg-success/10 transition-colors"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  <span className="text-base font-bold text-success/80">
+                    ✅ הושלמו
+                  </span>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/15">
+                    {completedTasks.length}
+                  </span>
+                  <span className="mr-auto">
+                    {showCompleted ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                  </span>
+                </button>
+                {showCompleted && (
+                  <div className="pr-2 border-r-2 border-success/15 mr-2 opacity-60">
+                    {renderTaskList(completedTasks)}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {allTasks.length === 0 && (
               <div className="flex flex-col items-center py-16 text-muted-foreground">
                 <p className="text-sm">אין משימות להצגה</p>
               </div>
