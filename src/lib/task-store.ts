@@ -170,7 +170,7 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
     const currentActive = get().activeWorkspace;
     const stillExists = currentActive && (currentActive === 'backlog' || loadedWorkspaces.some(w => w.id === currentActive));
     
-    // Check auto-select setting
+    // Check auto-select setting — only if no workspace is currently active
     let nextActive: string | null = stillExists ? currentActive : null;
     if (!nextActive && loadedWorkspaces.length > 0) {
       try {
@@ -201,12 +201,18 @@ export const useTaskStore = create<TaskStore>()((set, get) => ({
         }
       } catch {}
 
+      // Re-check activeWorkspace right before set() to avoid overriding a user selection made during the async gap
+      const latestActive = get().activeWorkspace;
+      const finalActive = latestActive && (latestActive === 'backlog' || loadedWorkspaces.some(w => w.id === latestActive))
+        ? latestActive
+        : nextActive;
+
       set({
       tasks: (tasksRes.data || []).map(dbToTask),
       workspaces: loadedWorkspaces,
       groups: loadedGroups,
       notifications: (notificationsRes.data || []).map(dbToNotification),
-      activeWorkspace: nextActive,
+      activeWorkspace: finalActive,
       viewMode: defaultViewMode,
       isLoading: false,
     });
