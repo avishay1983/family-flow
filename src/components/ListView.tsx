@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Task, Priority } from '@/lib/types';
 
