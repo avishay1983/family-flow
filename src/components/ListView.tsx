@@ -489,21 +489,118 @@ export function ListView() {
             {/* Completed tasks section */}
             {completedTasks.length > 0 && (
               <div className="space-y-2">
-                <button
-                  onClick={() => setShowCompleted(!showCompleted)}
-                  className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-success/6 border border-success/15 w-full text-right hover:bg-success/10 transition-colors"
-                >
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                  <span className="text-base font-bold text-success/80">
-                    ✅ הושלמו
-                  </span>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/15">
-                    {completedTasks.length}
-                  </span>
-                  <span className="mr-auto">
-                    {showCompleted ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                  </span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => { setShowCompleted(!showCompleted); setShowBulkActions(false); setShowBulkReschedule(false); }}
+                    className="flex items-center gap-3 py-3 px-4 rounded-2xl bg-success/6 border border-success/15 flex-1 text-right hover:bg-success/10 transition-colors"
+                  >
+                    <CheckCircle2 className="h-4 w-4 text-success" />
+                    <span className="text-base font-bold text-success/80">
+                      ✅ הושלמו
+                    </span>
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/15">
+                      {completedTasks.length}
+                    </span>
+                    <span className="mr-auto">
+                      {showCompleted ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => { setShowBulkActions(!showBulkActions); setShowBulkReschedule(false); }}
+                    className="p-3 rounded-2xl bg-muted/60 border border-border/40 hover:bg-accent transition-colors shrink-0"
+                    title="פעולות גורפות"
+                  >
+                    <span className="text-lg">⚡</span>
+                  </button>
+                </div>
+
+                {/* Bulk actions panel */}
+                {showBulkActions && (
+                  <div className="rounded-2xl border border-border/50 bg-card/80 p-3 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <p className="text-xs font-medium text-muted-foreground px-1">פעולות על כל {completedTasks.length} המשימות שהושלמו:</p>
+                    
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 h-11"
+                      onClick={() => {
+                        completedTasks.forEach(t => updateTask(t.id, { isBacklog: true }));
+                        setShowBulkActions(false);
+                      }}
+                    >
+                      <Archive className="h-4 w-4 text-primary" />
+                      <div className="text-right">
+                        <div className="text-sm font-medium">העבר הכל למחסן משימות</div>
+                      </div>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2 h-11"
+                      onClick={() => setShowBulkReschedule(!showBulkReschedule)}
+                    >
+                      <CalendarDays className="h-4 w-4 text-warning" />
+                      <div className="text-right">
+                        <div className="text-sm font-medium">קבע תאריך עתידי לכולן</div>
+                      </div>
+                    </Button>
+
+                    {showBulkReschedule && (
+                      <div className="space-y-1.5 pr-2 border-r-2 border-warning/20 mr-2">
+                        {[
+                          { label: 'מחר', date: addDays(new Date(), 1) },
+                          { label: 'בעוד שבוע', date: addWeeks(new Date(), 1) },
+                          { label: 'בעוד חודש', date: addMonths(new Date(), 1) },
+                        ].map((opt) => (
+                          <Button
+                            key={opt.label}
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start gap-2 h-9 text-xs"
+                            onClick={() => {
+                              const newDate = format(opt.date, 'yyyy-MM-dd');
+                              completedTasks.forEach(t => {
+                                updateTask(t.id, { dueDate: newDate, completed: false, status: 'todo' });
+                              });
+                              setShowBulkActions(false);
+                              setShowBulkReschedule(false);
+                            }}
+                          >
+                            <CalendarDays className="h-3.5 w-3.5" />
+                            {opt.label}
+                            <span className="text-muted-foreground mr-auto text-[10px]">
+                              {format(opt.date, 'dd/MM/yyyy')}
+                            </span>
+                          </Button>
+                        ))}
+                        <div className="flex gap-2 mt-1">
+                          <input
+                            type="date"
+                            className="flex-1 h-8 rounded-md border border-input bg-background px-2 text-xs"
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                completedTasks.forEach(t => {
+                                  updateTask(t.id, { dueDate: e.target.value, completed: false, status: 'todo' });
+                                });
+                                setShowBulkActions(false);
+                                setShowBulkReschedule(false);
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-muted-foreground text-xs"
+                      onClick={() => { setShowBulkActions(false); setShowBulkReschedule(false); }}
+                    >
+                      ביטול
+                    </Button>
+                  </div>
+                )}
+
                 {showCompleted && (
                   <div className="pr-2 border-r-2 border-success/15 mr-2 opacity-60">
                     {renderTaskList(completedTasks)}
