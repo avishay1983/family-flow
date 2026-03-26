@@ -163,7 +163,7 @@ export function AppSidebar() {
                 {/* Backlog item */}
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => setActiveWorkspace('backlog')}
+                    onClick={() => { setActiveWorkspace('backlog'); setOpenMobile(false); }}
                     data-tour="backlog"
                     className={`gap-3 rounded-lg transition-colors ${
                       activeWorkspace === 'backlog'
