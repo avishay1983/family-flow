@@ -67,7 +67,7 @@ function IconDisplay({ icon, className = '' }: { icon: string; className?: strin
 
 export function AppSidebar() {
   const { activeWorkspace, setActiveWorkspace, tasks, workspaces, groups, addWorkspace, deleteWorkspace, currentUser, logout } = useTaskStore();
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === 'collapsed';
   const { status: pushStatus, recheck: recheckPush } = usePushStatus();
 
@@ -163,7 +163,7 @@ export function AppSidebar() {
                 {/* Backlog item */}
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => setActiveWorkspace('backlog')}
+                    onClick={() => { setActiveWorkspace('backlog'); setOpenMobile(false); }}
                     data-tour="backlog"
                     className={`gap-3 rounded-lg transition-colors ${
                       activeWorkspace === 'backlog'
@@ -184,7 +184,7 @@ export function AppSidebar() {
                 {getOrderedWorkspaces(workspaces.filter(ws => !ws.groupId)).map((ws) => (
                   <SidebarMenuItem key={ws.id}>
                     <SidebarMenuButton
-                      onClick={() => setActiveWorkspace(ws.id)}
+                      onClick={() => { setActiveWorkspace(ws.id); setOpenMobile(false); }}
                       className={`gap-3 rounded-lg transition-colors group ${
                         activeWorkspace === ws.id
                           ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
@@ -270,7 +270,7 @@ export function AppSidebar() {
                               {groupWorkspaces.map((ws) => (
                                 <button
                                   key={ws.id}
-                                  onClick={() => setActiveWorkspace(ws.id)}
+                                  onClick={() => { setActiveWorkspace(ws.id); setOpenMobile(false); }}
                                   className={`w-full flex items-center gap-2 px-2 py-1 rounded text-sm transition-colors ${
                                     activeWorkspace === ws.id
                                       ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
