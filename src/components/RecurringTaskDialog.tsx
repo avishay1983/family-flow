@@ -26,8 +26,7 @@ export function RecurringTaskDialog({ task, onClose }: Props) {
   if (!task) return null;
 
   const handleMoveToBacklog = () => {
-    toggleComplete(task.id);
-    updateTask(task.id, { isBacklog: true, completed: true });
+    updateTask(task.id, { isBacklog: true, completed: false, status: 'todo' });
     onClose();
     setMode('choose');
   };
