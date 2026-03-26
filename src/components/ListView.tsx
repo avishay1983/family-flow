@@ -302,6 +302,8 @@ export function ListView() {
   const [moveTask, setMoveTask] = useState<Task | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [showBulkReschedule, setShowBulkReschedule] = useState(false);
   const isBacklog = activeWorkspace === 'backlog';
   const allTasks = getFilteredTasks().sort((a, b) => {
     if ((a.position ?? 0) !== (b.position ?? 0)) return (a.position ?? 0) - (b.position ?? 0);
