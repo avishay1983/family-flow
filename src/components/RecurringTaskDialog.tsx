@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CalendarDays, Archive, CheckCircle2 } from 'lucide-react';
+import { CalendarDays, Archive, CheckCircle2, ArrowRightLeft } from 'lucide-react';
 import { addDays, addWeeks, addMonths, format } from 'date-fns';
 
 interface Props {
@@ -19,11 +19,13 @@ interface Props {
 }
 
 export function RecurringTaskDialog({ task, onClose }: Props) {
-  const { addTask, updateTask, toggleComplete, currentUser } = useTaskStore();
-  const [mode, setMode] = useState<'choose' | 'reschedule'>('choose');
+  const { addTask, updateTask, toggleComplete, currentUser, workspaces } = useTaskStore();
+  const [mode, setMode] = useState<'choose' | 'reschedule' | 'move-ws'>('choose');
   const [customDate, setCustomDate] = useState('');
 
   if (!task) return null;
+
+  const isInBacklog = !!task.isBacklog;
 
   const handleMoveToBacklog = () => {
     updateTask(task.id, {
@@ -36,6 +38,18 @@ export function RecurringTaskDialog({ task, onClose }: Props) {
     setMode('choose');
   };
 
+  const handleMoveToWorkspace = (workspaceId: string) => {
+    updateTask(task.id, {
+      workspaceId,
+      isBacklog: false,
+      completed: false,
+      status: 'todo',
+    });
+    const ws = workspaces.find(w => w.id === workspaceId);
+    onClose();
+    setMode('choose');
+  };
+
   const handleMarkDone = () => {
     toggleComplete(task.id);
     onClose();
@@ -43,9 +57,7 @@ export function RecurringTaskDialog({ task, onClose }: Props) {
   };
 
   const scheduleAgain = (newDate: Date) => {
-    // Mark original as complete
     toggleComplete(task.id);
-    // Create new task with new date
     const newTask: Task = {
       ...task,
       id: crypto.randomUUID(),
@@ -97,17 +109,31 @@ export function RecurringTaskDialog({ task, onClose }: Props) {
               </div>
             </Button>
 
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-2 h-12"
-              onClick={handleMoveToBacklog}
-            >
-              <Archive className="h-4 w-4 text-primary" />
-              <div className="text-right">
-                <div className="text-sm font-medium">העבר למחסן משימות</div>
-                <div className="text-[10px] text-muted-foreground">שמור במחסן לשימוש עתידי</div>
-              </div>
-            </Button>
+            {isInBacklog ? (
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2 h-12"
+                onClick={() => setMode('move-ws')}
+              >
+                <ArrowRightLeft className="h-4 w-4 text-primary" />
+                <div className="text-right">
+                  <div className="text-sm font-medium">העבר למרחב עבודה</div>
+                  <div className="text-[10px] text-muted-foreground">קשר את המשימה למרחב עבודה</div>
+                </div>
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-2 h-12"
+                onClick={handleMoveToBacklog}
+              >
+                <Archive className="h-4 w-4 text-primary" />
+                <div className="text-right">
+                  <div className="text-sm font-medium">העבר למחסן משימות</div>
+                  <div className="text-[10px] text-muted-foreground">שמור במחסן לשימוש עתידי</div>
+                </div>
+              </Button>
+            )}
 
             <Button
               variant="outline"
@@ -123,6 +149,22 @@ export function RecurringTaskDialog({ task, onClose }: Props) {
 
             <Button variant="ghost" className="w-full text-muted-foreground text-xs" onClick={handleClose}>
               ביטול
+            </Button>
+          </div>
+        ) : mode === 'move-ws' ? (
+          <div className="space-y-1 mt-2">
+            {workspaces.map((ws) => (
+              <button
+                key={ws.id}
+                onClick={() => handleMoveToWorkspace(ws.id)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-accent transition-colors text-right"
+              >
+                <span className="text-lg">{ws.icon}</span>
+                <span className="font-medium">{ws.name}</span>
+              </button>
+            ))}
+            <Button variant="ghost" className="w-full text-muted-foreground text-xs" onClick={() => setMode('choose')}>
+              חזור
             </Button>
           </div>
         ) : (
