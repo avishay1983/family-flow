@@ -42,7 +42,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Trash2, Users, LogOut, Bell, BellOff, BellRing, AlertTriangle, Bug, Archive, Link2, FolderPlus, Settings } from 'lucide-react';
+import { Plus, Trash2, Users, LogOut, Bell, BellOff, BellRing, AlertTriangle, Bug, Archive, Link2, FolderPlus, Settings, BookOpen } from 'lucide-react';
+import { AppGuide } from './AppGuide';
 
 const pushStatusConfig: Record<PushStatus, { icon: typeof Bell; label: string; color: string; description: string }> = {
   loading: { icon: Bell, label: 'בודק...', color: 'text-muted-foreground', description: 'בודק מצב התראות...' },
@@ -79,6 +80,7 @@ export function AppSidebar() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [editGroupId, setEditGroupId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [newName, setNewName] = useState('');
   const [newIcon, setNewIcon] = useState('📁');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
@@ -366,6 +368,15 @@ export function AppSidebar() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    onClick={() => setShowGuide(true)}
+                    className="shrink-0 text-muted-foreground hover:text-foreground"
+                    title="מדריך שימוש"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowSettings(true)}
                     className="shrink-0 text-muted-foreground hover:text-foreground"
                     title="הגדרות"
@@ -503,6 +514,9 @@ export function AppSidebar() {
 
       {/* Settings Dialog */}
       <SettingsDialog open={showSettings} onClose={() => setShowSettings(false)} />
+
+      {/* App Guide */}
+      <AppGuide open={showGuide} onClose={() => setShowGuide(false)} />
     </>
   );
 }
