@@ -261,7 +261,7 @@ export function AppSidebar() {
                             {!collapsed && (
                               <button
                                 onClick={() => setEditGroupId(group.id)}
-                                className="opacity-0 group-hover/grp:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
+                                className="opacity-100 md:opacity-0 md:group-hover/grp:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
                                 title="ערוך קבוצה"
                               >
                                 <Settings className="h-3 w-3" />
