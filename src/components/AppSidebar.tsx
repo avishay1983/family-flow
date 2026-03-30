@@ -514,6 +514,9 @@ export function AppSidebar() {
 
       {/* Settings Dialog */}
       <SettingsDialog open={showSettings} onClose={() => setShowSettings(false)} />
+
+      {/* App Guide */}
+      <AppGuide open={showGuide} onClose={() => setShowGuide(false)} />
     </>
   );
 }
