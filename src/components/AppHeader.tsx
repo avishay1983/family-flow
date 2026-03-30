@@ -4,7 +4,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Plus, Search, List, Columns3, ChevronDown } from 'lucide-react';
+import { Plus, Search, List, Columns3, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import shabbatIcon from '@/assets/shabbat-icon.png';
 import taskmasterLogo from '@/assets/taskmaster-logo.png';
-import { NotificationsDropdown } from './NotificationsDropdown';
+
 import { CreateTaskModal } from './CreateTaskModal';
 
 const SPECIAL_ICONS: Record<string, string> = { shabbat: shabbatIcon };
@@ -29,9 +29,7 @@ function WorkspaceIcon({ icon }: { icon: string }) {
 export function AppHeader() {
   const { viewMode, setViewMode, searchQuery, setSearchQuery, getUnreadNotificationCount, activeWorkspace, workspaces, setActiveWorkspace } =
     useTaskStore();
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showCreateTask, setShowCreateTask] = useState(false);
-  const unreadCount = getUnreadNotificationCount();
   const ws = activeWorkspace && activeWorkspace !== 'backlog' ? workspaces.find((w) => w.id === activeWorkspace) : null;
   const isBacklog = activeWorkspace === 'backlog';
 
@@ -127,24 +125,6 @@ export function AppHeader() {
             </Button>
           </div>
 
-          <div className="relative" data-tour="notifications">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-9 w-9 rounded-xl hover:bg-accent/60 transition-colors"
-              onClick={() => setShowNotifications(!showNotifications)}
-            >
-              <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <Badge className="absolute -top-0.5 -left-0.5 h-4 min-w-4 rounded-full px-1 text-[10px] font-bold bg-destructive text-destructive-foreground border-2 border-background">
-                  {unreadCount}
-                </Badge>
-              )}
-            </Button>
-            {showNotifications && (
-              <NotificationsDropdown onClose={() => setShowNotifications(false)} />
-            )}
-          </div>
 
         </div>
       </header>
