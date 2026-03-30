@@ -80,6 +80,7 @@ export function AppSidebar() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [editGroupId, setEditGroupId] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [newName, setNewName] = useState('');
   const [newIcon, setNewIcon] = useState('📁');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
