@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CalendarDays, Archive, CheckCircle2 } from 'lucide-react';
+import { CalendarDays, Archive, CheckCircle2, ArrowRightLeft } from 'lucide-react';
 import { addDays, addWeeks, addMonths, format } from 'date-fns';
 
 interface Props {
