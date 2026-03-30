@@ -368,6 +368,15 @@ export function AppSidebar() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    onClick={() => setShowGuide(true)}
+                    className="shrink-0 text-muted-foreground hover:text-foreground"
+                    title="מדריך שימוש"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => setShowSettings(true)}
                     className="shrink-0 text-muted-foreground hover:text-foreground"
                     title="הגדרות"
