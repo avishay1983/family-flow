@@ -207,7 +207,7 @@ export function AppSidebar() {
                                 e.stopPropagation();
                                 setMembersWsId(ws.id);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
                               title="ניהול חברים"
                             >
                               <Users className="h-3 w-3" />
@@ -217,7 +217,7 @@ export function AppSidebar() {
                                 e.stopPropagation();
                                 setInviteWsId(ws.id);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
                               title="הזמנה למרחב"
                               data-tour="invite-link"
                             >
@@ -228,7 +228,7 @@ export function AppSidebar() {
                                 e.stopPropagation();
                                 setDeleteId(ws.id);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 hover:text-destructive transition-all"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/10 hover:text-destructive transition-all"
                             >
                               <Trash2 className="h-3 w-3" />
                             </button>
@@ -261,7 +261,7 @@ export function AppSidebar() {
                             {!collapsed && (
                               <button
                                 onClick={() => setEditGroupId(group.id)}
-                                className="opacity-0 group-hover/grp:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
+                                className="opacity-100 md:opacity-0 md:group-hover/grp:opacity-100 p-0.5 rounded hover:bg-accent transition-all"
                                 title="ערוך קבוצה"
                               >
                                 <Settings className="h-3 w-3" />
