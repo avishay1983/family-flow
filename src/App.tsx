@@ -81,6 +81,24 @@ function AppContent() {
     }
   }, [session, loadFromDB]);
 
+  // Realtime: reload tasks when another user changes them
+  useEffect(() => {
+    if (!session) return;
+    const channel = supabase
+      .channel('tasks-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks' },
+        () => {
+          loadFromDB();
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session, loadFromDB]);
+
   useOverdueNotifications();
   usePushSubscription(currentUser);
 
