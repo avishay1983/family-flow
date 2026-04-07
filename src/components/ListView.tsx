@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, isPast, isToday, isYesterday, isTomorrow, parseISO, startOfWeek, endOfWeek, isWithinInterval, isBefore } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, Clock, User, AlertCircle, Trash2, Pencil, ArrowRightLeft, GripVertical, Info, ChevronDown, ChevronUp, CheckCircle2, Archive, CalendarDays } from 'lucide-react';
+import { Calendar, Clock, User, AlertCircle, Trash2, Pencil, ArrowRightLeft, GripVertical, Info, ChevronDown, ChevronUp, CheckCircle2, Archive, CalendarDays, ListChecks, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addDays, addWeeks, addMonths } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -131,7 +131,7 @@ function groupTasksByWeek(tasks: Task[]): WeekSection[] {
   return sections;
 }
 
-function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDelete, onMove }: {
+function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDelete, onMove, selectionMode, isSelected, onSelect }: {
   task: Task;
   workspaces: any[];
   isOverdue: (task: Task) => boolean;
@@ -139,6 +139,9 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onMove: (task: Task) => void;
+  selectionMode?: boolean;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
   const style = {
@@ -157,25 +160,39 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
       <SwipeableTask onDelete={() => onDelete(task.id)}>
         <div
           className={`flex items-center gap-3 rounded-2xl px-4 py-3 md:py-3 py-4 transition-all duration-200 hover:bg-accent/40 group border ${
+            selectionMode && isSelected ? 'bg-primary/8 border-primary/30' :
             overdue ? 'bg-destructive/4 border-destructive/10 hover:bg-destructive/8' : 'border-transparent hover:border-border/50'
           } ${task.completed ? 'opacity-50' : ''}`}
+          onClick={selectionMode ? () => onSelect?.(task.id) : undefined}
         >
           {/* Drag handle */}
-          <div
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing shrink-0 touch-none"
-          >
-            <GripVertical className="h-4 w-4 text-muted-foreground/40" />
-          </div>
+          {!selectionMode && (
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing shrink-0 touch-none"
+            >
+              <GripVertical className="h-4 w-4 text-muted-foreground/40" />
+            </div>
+          )}
 
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={task.completed}
-              onCheckedChange={() => onToggle(task)}
-              className="shrink-0 h-5 w-5 md:h-4 md:w-4"
-            />
-          </div>
+          {selectionMode ? (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={() => onSelect?.(task.id)}
+                className="shrink-0 h-5 w-5 md:h-4 md:w-4"
+              />
+            </div>
+          ) : (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Checkbox
+                checked={task.completed}
+                onCheckedChange={() => onToggle(task)}
+                className="shrink-0 h-5 w-5 md:h-4 md:w-4"
+              />
+            </div>
+          )}
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
@@ -305,6 +322,9 @@ export function ListView() {
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showBulkReschedule, setShowBulkReschedule] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [showBulkDatePicker, setShowBulkDatePicker] = useState(false);
   const isBacklog = activeWorkspace === 'backlog';
 
   const toggleGroup = useCallback((groupId: string) => {
@@ -398,6 +418,25 @@ export function ListView() {
 
   const allTaskIds = allTasks.map((t) => t.id);
 
+  const toggleSelectTask = useCallback((id: string) => {
+    setSelectedTaskIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const exitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedTaskIds(new Set());
+    setShowBulkDatePicker(false);
+  }, []);
+
+  const selectAllActive = useCallback(() => {
+    setSelectedTaskIds(new Set(activeTasks.map(t => t.id)));
+  }, [activeTasks]);
+
   const renderTaskList = (taskList: Task[]) => (
     <div className="space-y-1">
       {taskList.map((task) => (
@@ -410,6 +449,9 @@ export function ListView() {
           onEdit={setEditTask}
           onDelete={(id) => setDeleteId(id)}
           onMove={setMoveTask}
+          selectionMode={selectionMode && !task.completed}
+          isSelected={selectedTaskIds.has(task.id)}
+          onSelect={toggleSelectTask}
         />
       ))}
     </div>
@@ -420,6 +462,30 @@ export function ListView() {
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={allTaskIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-6" dir="rtl">
+            {/* Selection mode toggle */}
+            {activeTasks.length > 0 && !isBacklog && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={selectionMode ? "default" : "outline"}
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => selectionMode ? exitSelectionMode() : setSelectionMode(true)}
+                >
+                  <ListChecks className="h-4 w-4" />
+                  {selectionMode ? 'בטל בחירה' : 'בחירה מרובה'}
+                </Button>
+                {selectionMode && (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={selectAllActive} className="text-xs">
+                      בחר הכל ({activeTasks.length})
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      נבחרו {selectedTaskIds.size}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
             {isBacklog && backlogByWorkspace ? (
               <>
                 {backlogByWorkspace.groups.map((group) => (
@@ -669,6 +735,80 @@ export function ListView() {
       <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
       <EditTaskModal task={editTask} onClose={() => setEditTask(null)} />
       <MoveTaskDialog task={moveTask} onClose={() => setMoveTask(null)} />
+
+      {/* Floating bulk date bar */}
+      <AnimatePresence>
+        {selectionMode && selectedTaskIds.size > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-20 left-4 right-4 z-50 rounded-2xl bg-card border border-border shadow-lg p-3 space-y-2"
+            dir="rtl"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">{selectedTaskIds.size} משימות נבחרו</span>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={exitSelectionMode}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-2 h-10"
+              onClick={() => setShowBulkDatePicker(!showBulkDatePicker)}
+            >
+              <CalendarDays className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">קבע תאריך ביצוע</span>
+            </Button>
+
+            {showBulkDatePicker && (
+              <div className="space-y-1.5 pr-2 border-r-2 border-primary/20 mr-2">
+                {[
+                  { label: 'היום', date: new Date() },
+                  { label: 'מחר', date: addDays(new Date(), 1) },
+                  { label: 'בעוד שבוע', date: addWeeks(new Date(), 1) },
+                  { label: 'בעוד חודש', date: addMonths(new Date(), 1) },
+                ].map((opt) => (
+                  <Button
+                    key={opt.label}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start gap-2 h-9 text-xs"
+                    onClick={() => {
+                      const newDate = format(opt.date, 'yyyy-MM-dd');
+                      selectedTaskIds.forEach(id => {
+                        updateTask(id, { dueDate: newDate });
+                      });
+                      exitSelectionMode();
+                    }}
+                  >
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    {opt.label}
+                    <span className="text-muted-foreground mr-auto text-[10px]">
+                      {format(opt.date, 'dd/MM/yyyy')}
+                    </span>
+                  </Button>
+                ))}
+                <div className="flex gap-2 mt-1">
+                  <input
+                    type="date"
+                    className="flex-1 h-8 rounded-md border border-input bg-background px-2 text-xs"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        selectedTaskIds.forEach(id => {
+                          updateTask(id, { dueDate: e.target.value });
+                        });
+                        exitSelectionMode();
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
