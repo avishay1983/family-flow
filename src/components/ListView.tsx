@@ -735,6 +735,80 @@ export function ListView() {
       <RecurringTaskDialog task={recurringTask} onClose={() => setRecurringTask(null)} />
       <EditTaskModal task={editTask} onClose={() => setEditTask(null)} />
       <MoveTaskDialog task={moveTask} onClose={() => setMoveTask(null)} />
-    </>
+
+      {/* Floating bulk date bar */}
+      <AnimatePresence>
+        {selectionMode && selectedTaskIds.size > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-20 left-4 right-4 z-50 rounded-2xl bg-card border border-border shadow-lg p-3 space-y-2"
+            dir="rtl"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">{selectedTaskIds.size} משימות נבחרו</span>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={exitSelectionMode}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-2 h-10"
+              onClick={() => setShowBulkDatePicker(!showBulkDatePicker)}
+            >
+              <CalendarDays className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">קבע תאריך ביצוע</span>
+            </Button>
+
+            {showBulkDatePicker && (
+              <div className="space-y-1.5 pr-2 border-r-2 border-primary/20 mr-2">
+                {[
+                  { label: 'היום', date: new Date() },
+                  { label: 'מחר', date: addDays(new Date(), 1) },
+                  { label: 'בעוד שבוע', date: addWeeks(new Date(), 1) },
+                  { label: 'בעוד חודש', date: addMonths(new Date(), 1) },
+                ].map((opt) => (
+                  <Button
+                    key={opt.label}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start gap-2 h-9 text-xs"
+                    onClick={() => {
+                      const newDate = format(opt.date, 'yyyy-MM-dd');
+                      selectedTaskIds.forEach(id => {
+                        updateTask(id, { dueDate: newDate });
+                      });
+                      exitSelectionMode();
+                    }}
+                  >
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    {opt.label}
+                    <span className="text-muted-foreground mr-auto text-[10px]">
+                      {format(opt.date, 'dd/MM/yyyy')}
+                    </span>
+                  </Button>
+                ))}
+                <div className="flex gap-2 mt-1">
+                  <input
+                    type="date"
+                    className="flex-1 h-8 rounded-md border border-input bg-background px-2 text-xs"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        selectedTaskIds.forEach(id => {
+                          updateTask(id, { dueDate: e.target.value });
+                        });
+                        exitSelectionMode();
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>;
   );
 }
