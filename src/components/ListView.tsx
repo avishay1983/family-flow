@@ -418,6 +418,25 @@ export function ListView() {
 
   const allTaskIds = allTasks.map((t) => t.id);
 
+  const toggleSelectTask = useCallback((id: string) => {
+    setSelectedTaskIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const exitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedTaskIds(new Set());
+    setShowBulkDatePicker(false);
+  }, []);
+
+  const selectAllActive = useCallback(() => {
+    setSelectedTaskIds(new Set(activeTasks.map(t => t.id)));
+  }, [activeTasks]);
+
   const renderTaskList = (taskList: Task[]) => (
     <div className="space-y-1">
       {taskList.map((task) => (
@@ -430,6 +449,9 @@ export function ListView() {
           onEdit={setEditTask}
           onDelete={(id) => setDeleteId(id)}
           onMove={setMoveTask}
+          selectionMode={selectionMode && !task.completed}
+          isSelected={selectedTaskIds.has(task.id)}
+          onSelect={toggleSelectTask}
         />
       ))}
     </div>
