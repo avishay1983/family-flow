@@ -809,6 +809,6 @@ export function ListView() {
           </motion.div>
         )}
       </AnimatePresence>
-    </>;
+    </>
   );
 }
