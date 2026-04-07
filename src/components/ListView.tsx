@@ -131,7 +131,7 @@ function groupTasksByWeek(tasks: Task[]): WeekSection[] {
   return sections;
 }
 
-function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDelete, onMove }: {
+function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDelete, onMove, selectionMode, isSelected, onSelect }: {
   task: Task;
   workspaces: any[];
   isOverdue: (task: Task) => boolean;
@@ -139,6 +139,9 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
   onMove: (task: Task) => void;
+  selectionMode?: boolean;
+  isSelected?: boolean;
+  onSelect?: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
   const style = {
