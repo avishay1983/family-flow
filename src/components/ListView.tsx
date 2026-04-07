@@ -325,6 +325,7 @@ export function ListView() {
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   const [selectionMode, setSelectionMode] = useState(false);
   const [showBulkDatePicker, setShowBulkDatePicker] = useState(false);
+  const [bulkTime, setBulkTime] = useState('');
   const isBacklog = activeWorkspace === 'backlog';
 
   const toggleGroup = useCallback((groupId: string) => {
@@ -431,6 +432,7 @@ export function ListView() {
     setSelectionMode(false);
     setSelectedTaskIds(new Set());
     setShowBulkDatePicker(false);
+    setBulkTime('');
   }, []);
 
   const selectAllActive = useCallback(() => {
@@ -803,6 +805,32 @@ export function ListView() {
                       }
                     }}
                   />
+                </div>
+
+                {/* Bulk time picker */}
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/50">
+                  <Clock className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs font-medium">קבע שעה לכולם</span>
+                  <input
+                    type="time"
+                    value={bulkTime}
+                    onChange={(e) => setBulkTime(e.target.value)}
+                    className="flex-1 h-8 rounded-md border border-input bg-background px-2 text-xs"
+                  />
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="h-8 text-xs px-3"
+                    disabled={!bulkTime}
+                    onClick={() => {
+                      selectedTaskIds.forEach(id => {
+                        updateTask(id, { dueTime: bulkTime });
+                      });
+                      exitSelectionMode();
+                    }}
+                  >
+                    החל
+                  </Button>
                 </div>
               </div>
             )}
