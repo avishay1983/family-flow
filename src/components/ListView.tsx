@@ -462,7 +462,30 @@ export function ListView() {
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={allTaskIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-6" dir="rtl">
-            {isBacklog && backlogByWorkspace ? (
+            {/* Selection mode toggle */}
+            {activeTasks.length > 0 && !isBacklog && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={selectionMode ? "default" : "outline"}
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => selectionMode ? exitSelectionMode() : setSelectionMode(true)}
+                >
+                  <ListChecks className="h-4 w-4" />
+                  {selectionMode ? 'בטל בחירה' : 'בחירה מרובה'}
+                </Button>
+                {selectionMode && (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={selectAllActive} className="text-xs">
+                      בחר הכל ({activeTasks.length})
+                    </Button>
+                    <span className="text-xs text-muted-foreground">
+                      נבחרו {selectedTaskIds.size}
+                    </span>
+                  </>
+                )}
+              </div>
+            )}
               <>
                 {backlogByWorkspace.groups.map((group) => (
                   <div key={group.wsId}>
