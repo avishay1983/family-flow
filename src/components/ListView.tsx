@@ -485,7 +485,7 @@ export function ListView() {
                   </>
                 )}
               </div>
-            )}
+            {isBacklog && backlogByWorkspace ? (
               <>
                 {backlogByWorkspace.groups.map((group) => (
                   <div key={group.wsId}>
