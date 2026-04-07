@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format, isPast, isToday, isYesterday, isTomorrow, parseISO, startOfWeek, endOfWeek, isWithinInterval, isBefore } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, Clock, User, AlertCircle, Trash2, Pencil, ArrowRightLeft, GripVertical, Info, ChevronDown, ChevronUp, CheckCircle2, Archive, CalendarDays } from 'lucide-react';
+import { Calendar, Clock, User, AlertCircle, Trash2, Pencil, ArrowRightLeft, GripVertical, Info, ChevronDown, ChevronUp, CheckCircle2, Archive, CalendarDays, ListChecks, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addDays, addWeeks, addMonths } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
