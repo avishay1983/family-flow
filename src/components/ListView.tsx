@@ -160,25 +160,39 @@ function SortableTaskItem({ task, workspaces, isOverdue, onToggle, onEdit, onDel
       <SwipeableTask onDelete={() => onDelete(task.id)}>
         <div
           className={`flex items-center gap-3 rounded-2xl px-4 py-3 md:py-3 py-4 transition-all duration-200 hover:bg-accent/40 group border ${
+            selectionMode && isSelected ? 'bg-primary/8 border-primary/30' :
             overdue ? 'bg-destructive/4 border-destructive/10 hover:bg-destructive/8' : 'border-transparent hover:border-border/50'
           } ${task.completed ? 'opacity-50' : ''}`}
+          onClick={selectionMode ? () => onSelect?.(task.id) : undefined}
         >
           {/* Drag handle */}
-          <div
-            {...attributes}
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing shrink-0 touch-none"
-          >
-            <GripVertical className="h-4 w-4 text-muted-foreground/40" />
-          </div>
+          {!selectionMode && (
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing shrink-0 touch-none"
+            >
+              <GripVertical className="h-4 w-4 text-muted-foreground/40" />
+            </div>
+          )}
 
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={task.completed}
-              onCheckedChange={() => onToggle(task)}
-              className="shrink-0 h-5 w-5 md:h-4 md:w-4"
-            />
-          </div>
+          {selectionMode ? (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={() => onSelect?.(task.id)}
+                className="shrink-0 h-5 w-5 md:h-4 md:w-4"
+              />
+            </div>
+          ) : (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Checkbox
+                checked={task.completed}
+                onCheckedChange={() => onToggle(task)}
+                className="shrink-0 h-5 w-5 md:h-4 md:w-4"
+              />
+            </div>
+          )}
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
