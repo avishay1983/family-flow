@@ -322,7 +322,9 @@ export function ListView() {
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showBulkReschedule, setShowBulkReschedule] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const isBacklog = activeWorkspace === 'backlog';
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [showBulkDatePicker, setShowBulkDatePicker] = useState(false);
 
   const toggleGroup = useCallback((groupId: string) => {
     setExpandedGroups(prev => {
