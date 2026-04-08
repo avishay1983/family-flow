@@ -39,34 +39,13 @@ const reminderOptions = [
   { value: '1d', label: 'יום לפני' },
 ];
 
-const DAY_NAMES = [
-  { value: 0, label: 'יום ראשון' },
-  { value: 1, label: 'יום שני' },
-  { value: 2, label: 'יום שלישי' },
-  { value: 3, label: 'יום רביעי' },
-  { value: 4, label: 'יום חמישי' },
-  { value: 5, label: 'יום שישי' },
-  { value: 6, label: 'שבת' },
-];
-
-type DateMode = 'date' | 'day';
+type DatePickOption = 'today' | 'tomorrow' | 'next_week' | 'calendar';
 
 function toLocalDateString(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
-}
-
-/** Given a target day (0-6), return the next occurrence as local date string */
-function getNextDayDate(dayOfWeek: number): string {
-  const today = new Date();
-  const todayDay = today.getDay();
-  if (todayDay === dayOfWeek) {
-    return toLocalDateString(today);
-  }
-  const next = nextDay(today, dayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6);
-  return toLocalDateString(next);
 }
 
 export function CreateTaskModal({ open, onClose }: Props) {
