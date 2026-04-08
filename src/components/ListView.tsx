@@ -326,6 +326,8 @@ export function ListView() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [showBulkDatePicker, setShowBulkDatePicker] = useState(false);
   const [bulkTime, setBulkTime] = useState('');
+  const [showBulkMove, setShowBulkMove] = useState(false);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const isBacklog = activeWorkspace === 'backlog';
 
   const toggleGroup = useCallback((groupId: string) => {
