@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Task, Priority } from '@/lib/types';
-import { nextDay, format } from 'date-fns';
+import { addDays, addWeeks, format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import {
   Dialog,
@@ -15,7 +15,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { X } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { X, CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Props {
   open: boolean;
