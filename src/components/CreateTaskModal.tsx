@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTaskStore } from '@/lib/task-store';
 import { Task, Priority } from '@/lib/types';
-import { nextDay, format } from 'date-fns';
+import { addDays, addWeeks, format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import {
   Dialog,
@@ -15,7 +15,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { X } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { X, CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Props {
   open: boolean;
@@ -36,34 +39,13 @@ const reminderOptions = [
   { value: '1d', label: 'יום לפני' },
 ];
 
-const DAY_NAMES = [
-  { value: 0, label: 'יום ראשון' },
-  { value: 1, label: 'יום שני' },
-  { value: 2, label: 'יום שלישי' },
-  { value: 3, label: 'יום רביעי' },
-  { value: 4, label: 'יום חמישי' },
-  { value: 5, label: 'יום שישי' },
-  { value: 6, label: 'שבת' },
-];
-
-type DateMode = 'date' | 'day';
+type DatePickOption = 'today' | 'tomorrow' | 'next_week' | 'calendar';
 
 function toLocalDateString(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
-}
-
-/** Given a target day (0-6), return the next occurrence as local date string */
-function getNextDayDate(dayOfWeek: number): string {
-  const today = new Date();
-  const todayDay = today.getDay();
-  if (todayDay === dayOfWeek) {
-    return toLocalDateString(today);
-  }
-  const next = nextDay(today, dayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6);
-  return toLocalDateString(next);
 }
 
 export function CreateTaskModal({ open, onClose }: Props) {
@@ -74,13 +56,13 @@ export function CreateTaskModal({ open, onClose }: Props) {
   const [workspaceId, setWorkspaceId] = useState(isBacklogMode ? '' : (activeWorkspace || workspaces[0]?.id || ''));
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
   const [priority, setPriority] = useState<Priority>('medium');
-  const [dateMode, setDateMode] = useState<DateMode>('day');
+  const [dateOption, setDateOption] = useState<DatePickOption>('today');
   const [dueDate, setDueDate] = useState(toLocalDateString(new Date()));
-  const [dueDay, setDueDay] = useState<number | null>(null);
   const [dueTime, setDueTime] = useState('');
   const [reminderBefore, setReminderBefore] = useState('1h');
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const selectedWorkspace = workspaces.find((w) => w.id === workspaceId);
   const members = selectedWorkspace?.members || [];
@@ -102,16 +84,15 @@ export function CreateTaskModal({ open, onClose }: Props) {
     }
   };
 
+  const handleDateOption = (option: DatePickOption) => {
+    setDateOption(option);
+    if (option === 'today') setDueDate(toLocalDateString(new Date()));
+    else if (option === 'tomorrow') setDueDate(toLocalDateString(addDays(new Date(), 1)));
+    else if (option === 'next_week') setDueDate(toLocalDateString(addWeeks(new Date(), 1)));
+  };
+
   const handleSubmit = () => {
     if (!title.trim()) return;
-
-    let finalDueDate = dueDate; // empty string if no date selected
-    let finalDueDay: number | undefined;
-
-    if (dateMode === 'day' && dueDay !== null) {
-      finalDueDate = getNextDayDate(dueDay);
-      finalDueDay = dueDay;
-    }
 
     const task: Task = {
       id: crypto.randomUUID(),
@@ -122,9 +103,8 @@ export function CreateTaskModal({ open, onClose }: Props) {
       priority,
       status: 'todo',
       tags,
-      dueDate: finalDueDate,
+      dueDate,
       dueTime,
-      dueDay: finalDueDay,
       reminderBefore,
       createdAt: new Date().toISOString(),
       completed: false,
@@ -139,12 +119,12 @@ export function CreateTaskModal({ open, onClose }: Props) {
     setTitle('');
     setDescription('');
     setPriority('medium');
-    setDateMode('day');
+    setDateOption('today');
     setDueDate(toLocalDateString(new Date()));
-    setDueDay(null);
     setDueTime('');
     setTags([]);
     setTagInput('');
+    setCalendarOpen(false);
   };
 
   return (
@@ -266,64 +246,64 @@ export function CreateTaskModal({ open, onClose }: Props) {
                 </div>
               </div>
 
-              {/* Date mode toggle */}
+              {/* Date quick-pick */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">מועד יעד</label>
-                <div className="flex gap-2 mb-3">
-                  <button
-                    onClick={() => setDateMode('date')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      dateMode === 'date'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
-                  >
-                    📅 תאריך מדויק
-                  </button>
-                  <button
-                    onClick={() => setDateMode('day')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      dateMode === 'day'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
-                  >
-                    🔄 יום בשבוע
-                  </button>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {[
+                    { key: 'today' as DatePickOption, label: '📅 היום' },
+                    { key: 'tomorrow' as DatePickOption, label: '📅 מחר' },
+                    { key: 'next_week' as DatePickOption, label: '📅 בעוד שבוע' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.key}
+                      onClick={() => handleDateOption(opt.key)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        dateOption === opt.key
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        onClick={() => setDateOption('calendar')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          dateOption === 'calendar'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
+                      >
+                        <CalendarIcon className="h-3 w-3 inline ml-1" />
+                        {dateOption === 'calendar' ? format(new Date(dueDate), 'dd/MM/yyyy') : 'בחר תאריך'}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={new Date(dueDate)}
+                        onSelect={(date) => {
+                          if (date) {
+                            setDueDate(toLocalDateString(date));
+                            setDateOption('calendar');
+                            setCalendarOpen(false);
+                          }
+                        }}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
-                {dateMode === 'date' ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="h-9" />
-                    <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" />
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1.5">
-                      {DAY_NAMES.map((day) => (
-                        <button
-                          key={day.value}
-                          onClick={() => setDueDay(day.value)}
-                          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                            dueDay === day.value
-                              ? 'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background'
-                              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                          }`}
-                        >
-                          {day.label}
-                        </button>
-                      ))}
-                    </div>
-                    {dueDay !== null && (
-                      <p className="text-xs text-muted-foreground">
-                        📌 המשימה תיקבע ל-{DAY_NAMES[dueDay].label} הקרוב ({format(new Date(getNextDayDate(dueDay)), 'dd/MM/yyyy', { locale: he })})
-                        <br />
-                        ⚠️ אם לא תבוצע — תקבל התראה יומית עד ביצוע
-                      </p>
-                    )}
-                    <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" placeholder="שעת יעד (אופציונלי)" />
-                  </div>
-                )}
+                <p className="text-xs text-muted-foreground mb-2">
+                  📌 תאריך יעד: {format(new Date(dueDate), 'dd/MM/yyyy', { locale: he })}
+                </p>
+
+                <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" placeholder="שעת יעד (אופציונלי)" />
               </div>
 
               <div>
