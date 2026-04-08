@@ -469,7 +469,7 @@ export function ListView() {
         <SortableContext items={allTaskIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-6" dir="rtl">
             {/* Selection mode toggle */}
-            {activeTasks.length > 0 && !isBacklog && (
+            {activeTasks.length > 0 && (
               <div className="flex items-center gap-2">
                 <Button
                   variant={selectionMode ? "default" : "outline"}
