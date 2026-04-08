@@ -84,16 +84,15 @@ export function CreateTaskModal({ open, onClose }: Props) {
     }
   };
 
+  const handleDateOption = (option: DatePickOption) => {
+    setDateOption(option);
+    if (option === 'today') setDueDate(toLocalDateString(new Date()));
+    else if (option === 'tomorrow') setDueDate(toLocalDateString(addDays(new Date(), 1)));
+    else if (option === 'next_week') setDueDate(toLocalDateString(addWeeks(new Date(), 1)));
+  };
+
   const handleSubmit = () => {
     if (!title.trim()) return;
-
-    let finalDueDate = dueDate; // empty string if no date selected
-    let finalDueDay: number | undefined;
-
-    if (dateMode === 'day' && dueDay !== null) {
-      finalDueDate = getNextDayDate(dueDay);
-      finalDueDay = dueDay;
-    }
 
     const task: Task = {
       id: crypto.randomUUID(),
@@ -104,9 +103,8 @@ export function CreateTaskModal({ open, onClose }: Props) {
       priority,
       status: 'todo',
       tags,
-      dueDate: finalDueDate,
+      dueDate,
       dueTime,
-      dueDay: finalDueDay,
       reminderBefore,
       createdAt: new Date().toISOString(),
       completed: false,
