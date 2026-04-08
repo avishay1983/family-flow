@@ -119,12 +119,12 @@ export function CreateTaskModal({ open, onClose }: Props) {
     setTitle('');
     setDescription('');
     setPriority('medium');
-    setDateMode('day');
+    setDateOption('today');
     setDueDate(toLocalDateString(new Date()));
-    setDueDay(null);
     setDueTime('');
     setTags([]);
     setTagInput('');
+    setCalendarOpen(false);
   };
 
   return (
