@@ -326,6 +326,8 @@ export function ListView() {
   const [selectionMode, setSelectionMode] = useState(false);
   const [showBulkDatePicker, setShowBulkDatePicker] = useState(false);
   const [bulkTime, setBulkTime] = useState('');
+  const [showBulkMove, setShowBulkMove] = useState(false);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const isBacklog = activeWorkspace === 'backlog';
 
   const toggleGroup = useCallback((groupId: string) => {
@@ -433,6 +435,8 @@ export function ListView() {
     setSelectedTaskIds(new Set());
     setShowBulkDatePicker(false);
     setBulkTime('');
+    setShowBulkMove(false);
+    setBulkDeleteConfirm(false);
   }, []);
 
   const selectAllActive = useCallback(() => {
@@ -465,7 +469,7 @@ export function ListView() {
         <SortableContext items={allTaskIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-6" dir="rtl">
             {/* Selection mode toggle */}
-            {activeTasks.length > 0 && !isBacklog && (
+            {activeTasks.length > 0 && (
               <div className="flex items-center gap-2">
                 <Button
                   variant={selectionMode ? "default" : "outline"}
@@ -755,14 +759,96 @@ export function ListView() {
               </Button>
             </div>
 
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-2 h-10"
-              onClick={() => setShowBulkDatePicker(!showBulkDatePicker)}
-            >
-              <CalendarDays className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">קבע תאריך ביצוע</span>
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 justify-center gap-2 h-10"
+                onClick={() => { setShowBulkDatePicker(!showBulkDatePicker); setShowBulkMove(false); setBulkDeleteConfirm(false); }}
+              >
+                <CalendarDays className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">תאריך</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="flex-1 justify-center gap-2 h-10"
+                onClick={() => { setShowBulkMove(!showBulkMove); setShowBulkDatePicker(false); setBulkDeleteConfirm(false); }}
+              >
+                <ArrowRightLeft className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">העבר</span>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="flex-1 justify-center gap-2 h-10 text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={() => { setBulkDeleteConfirm(!bulkDeleteConfirm); setShowBulkDatePicker(false); setShowBulkMove(false); }}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="text-sm font-medium">מחק</span>
+              </Button>
+            </div>
+
+            {/* Bulk delete confirm */}
+            {bulkDeleteConfirm && (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-2">
+                <p className="text-sm text-destructive font-medium">למחוק {selectedTaskIds.size} משימות? פעולה זו לא ניתנת לביטול.</p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      selectedTaskIds.forEach(id => deleteTask(id));
+                      exitSelectionMode();
+                    }}
+                  >
+                    מחק הכל
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => setBulkDeleteConfirm(false)}>
+                    ביטול
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Bulk move to workspace */}
+            {showBulkMove && (
+              <div className="space-y-1.5 pr-2 border-r-2 border-primary/20 mr-2">
+                {workspaces.map((ws) => (
+                  <Button
+                    key={ws.id}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start gap-2 h-9 text-xs"
+                    onClick={() => {
+                      selectedTaskIds.forEach(id => {
+                        updateTask(id, { workspaceId: ws.id, isBacklog: false });
+                      });
+                      exitSelectionMode();
+                    }}
+                  >
+                    <span>{ws.icon}</span>
+                    <span>{ws.name}</span>
+                  </Button>
+                ))}
+                {!isBacklog && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start gap-2 h-9 text-xs"
+                    onClick={() => {
+                      selectedTaskIds.forEach(id => {
+                        updateTask(id, { isBacklog: true });
+                      });
+                      exitSelectionMode();
+                    }}
+                  >
+                    <Archive className="h-3.5 w-3.5" />
+                    <span>מחסן משימות</span>
+                  </Button>
+                )}
+              </div>
+            )}
 
             {showBulkDatePicker && (
               <div className="space-y-1.5 pr-2 border-r-2 border-primary/20 mr-2">
