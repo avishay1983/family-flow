@@ -246,64 +246,64 @@ export function CreateTaskModal({ open, onClose }: Props) {
                 </div>
               </div>
 
-              {/* Date mode toggle */}
+              {/* Date quick-pick */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">מועד יעד</label>
-                <div className="flex gap-2 mb-3">
-                  <button
-                    onClick={() => setDateMode('date')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      dateMode === 'date'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
-                  >
-                    📅 תאריך מדויק
-                  </button>
-                  <button
-                    onClick={() => setDateMode('day')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      dateMode === 'day'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    }`}
-                  >
-                    🔄 יום בשבוע
-                  </button>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {[
+                    { key: 'today' as DatePickOption, label: '📅 היום' },
+                    { key: 'tomorrow' as DatePickOption, label: '📅 מחר' },
+                    { key: 'next_week' as DatePickOption, label: '📅 בעוד שבוע' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.key}
+                      onClick={() => handleDateOption(opt.key)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        dateOption === opt.key
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        onClick={() => setDateOption('calendar')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          dateOption === 'calendar'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                        }`}
+                      >
+                        <CalendarIcon className="h-3 w-3 inline ml-1" />
+                        {dateOption === 'calendar' ? format(new Date(dueDate), 'dd/MM/yyyy') : 'בחר תאריך'}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={new Date(dueDate)}
+                        onSelect={(date) => {
+                          if (date) {
+                            setDueDate(toLocalDateString(date));
+                            setDateOption('calendar');
+                            setCalendarOpen(false);
+                          }
+                        }}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
-                {dateMode === 'date' ? (
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="h-9" />
-                    <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" />
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1.5">
-                      {DAY_NAMES.map((day) => (
-                        <button
-                          key={day.value}
-                          onClick={() => setDueDay(day.value)}
-                          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                            dueDay === day.value
-                              ? 'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background'
-                              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                          }`}
-                        >
-                          {day.label}
-                        </button>
-                      ))}
-                    </div>
-                    {dueDay !== null && (
-                      <p className="text-xs text-muted-foreground">
-                        📌 המשימה תיקבע ל-{DAY_NAMES[dueDay].label} הקרוב ({format(new Date(getNextDayDate(dueDay)), 'dd/MM/yyyy', { locale: he })})
-                        <br />
-                        ⚠️ אם לא תבוצע — תקבל התראה יומית עד ביצוע
-                      </p>
-                    )}
-                    <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" placeholder="שעת יעד (אופציונלי)" />
-                  </div>
-                )}
+                <p className="text-xs text-muted-foreground mb-2">
+                  📌 תאריך יעד: {format(new Date(dueDate), 'dd/MM/yyyy', { locale: he })}
+                </p>
+
+                <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} className="h-9" placeholder="שעת יעד (אופציונלי)" />
               </div>
 
               <div>
