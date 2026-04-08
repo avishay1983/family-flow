@@ -848,7 +848,7 @@ export function ListView() {
                   </Button>
                 )}
               </div>
-            )
+            )}
 
             {showBulkDatePicker && (
               <div className="space-y-1.5 pr-2 border-r-2 border-primary/20 mr-2">
