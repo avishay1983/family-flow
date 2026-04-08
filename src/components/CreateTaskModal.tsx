@@ -56,13 +56,13 @@ export function CreateTaskModal({ open, onClose }: Props) {
   const [workspaceId, setWorkspaceId] = useState(isBacklogMode ? '' : (activeWorkspace || workspaces[0]?.id || ''));
   const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
   const [priority, setPriority] = useState<Priority>('medium');
-  const [dateMode, setDateMode] = useState<DateMode>('day');
+  const [dateOption, setDateOption] = useState<DatePickOption>('today');
   const [dueDate, setDueDate] = useState(toLocalDateString(new Date()));
-  const [dueDay, setDueDay] = useState<number | null>(null);
   const [dueTime, setDueTime] = useState('');
   const [reminderBefore, setReminderBefore] = useState('1h');
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const selectedWorkspace = workspaces.find((w) => w.id === workspaceId);
   const members = selectedWorkspace?.members || [];
