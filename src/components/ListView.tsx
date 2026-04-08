@@ -435,6 +435,8 @@ export function ListView() {
     setSelectedTaskIds(new Set());
     setShowBulkDatePicker(false);
     setBulkTime('');
+    setShowBulkMove(false);
+    setBulkDeleteConfirm(false);
   }, []);
 
   const selectAllActive = useCallback(() => {
